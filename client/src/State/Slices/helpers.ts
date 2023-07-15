@@ -1,5 +1,16 @@
+import produce from 'immer';
 import { v4 as uuid } from 'uuid';
-import { AxialCoordinate, GridCoordinate, Piece, PieceOwner, Tile, TileStatusType } from '../../types';
+import {
+  AxialCoordinate,
+  GameOverState,
+  GridCoordinate,
+  MoveStatus,
+  Piece,
+  PieceOwner,
+  PieceType,
+  Tile,
+  TileStatusType,
+} from '../../types';
 import { createBishop } from '../Pieces/Bishop';
 import { createKing } from '../Pieces/King';
 import { createKnight } from '../Pieces/Knight';
@@ -175,38 +186,138 @@ export const AnalyzeThreats = (state: GameState) => {
   for (const col of state.board) {
     for (const tile of col) {
       if (tile.content !== null) {
-        PopulateThreats(state, tile.content);
+        PopulateThreats(state, tile.content, true);
       }
     }
   }
 };
 
-export const PopulateThreats = (state: GameState, piece: Piece) => {
+export const PopulateThreats = (state: GameState, piece: Piece, checkKing: boolean) => {
   const moveF = CalculateMovesFunctions.get(piece.type);
   if (moveF === undefined) return;
   const moves = moveF(state, piece);
   for (const move of moves) {
+    // Check if king is under threat and prune moves
+    // TODO: improve efficiency of this
+    let validMove = true;
+    if (checkKing) {
+      const image = produce(state, (draftState: GameState) => {
+        const premonitionBoard = draftState.board;
+        const premonitionMover = premonitionBoard[piece.pos.col][piece.pos.row].content as Piece;
+        const gridMove = AxialToGrid(move.axial);
+        premonitionMover.pos = gridMove;
+        premonitionMover.axial = move.axial;
+        premonitionBoard[gridMove.col][gridMove.row].content = premonitionMover;
+
+        premonitionBoard[piece.pos.col][piece.pos.row].content = null;
+
+        for (const col of premonitionBoard) {
+          for (const tile of col) {
+            if (tile.content !== null) {
+              PopulateThreats(draftState, tile.content, false);
+            }
+          }
+        }
+
+        const kingTile = GetTileWithKing(draftState, piece.owner);
+        if (kingTile !== undefined && piece.owner === PieceOwner.black) {
+          if (kingTile.statuses.some((status) => status.type === TileStatusType.whiteThreatening)) {
+            validMove = false;
+          }
+        } else if (kingTile !== undefined && piece.owner === PieceOwner.white) {
+          if (kingTile.statuses.some((status) => status.type === TileStatusType.blackThreatening)) {
+            validMove = false;
+          }
+        }
+      });
+    }
+
+    if (!validMove) continue;
+
     const tile = GetTileAtAxial(state, move.axial);
     if (piece.owner === PieceOwner.black) {
-      tile?.statuses.push({ type: TileStatusType.blackThreatening });
+      tile?.statuses.push({ type: TileStatusType.blackThreatening, origin: piece } as MoveStatus);
     } else {
-      tile?.statuses.push({ type: TileStatusType.whiteThreatening });
+      tile?.statuses.push({ type: TileStatusType.whiteThreatening, origin: piece } as MoveStatus);
     }
   }
 };
 
-export const AdvanceTurn = (state: GameState) => {
+export const EndTurn = (state: GameState) => {
   ClearThreatStatuses(state);
-  state.turn += 1;
+  ClearMoveHighlights(state);
+  state.selected = null;
 };
 
 export const ClearThreatStatuses = (state: GameState) => {
   for (const col of state.board) {
     for (const tile of col) {
-      if (tile.content !== null) {
-        tile.statuses = tile.statuses.filter((status) => {
-          return status.type !== TileStatusType.whiteThreatening && status.type !== TileStatusType.blackThreatening;
-        });
+      state.board[tile.pos.col][tile.pos.row].statuses = tile.statuses.filter((status) => {
+        return status.type !== TileStatusType.whiteThreatening && status.type !== TileStatusType.blackThreatening;
+      });
+    }
+  }
+};
+
+export const ClearMoveHighlights = (state: GameState) => {
+  for (const col of state.board) {
+    for (const tile of col) {
+      state.board[tile.pos.col][tile.pos.row].statuses = tile.statuses.filter((status) => {
+        return status.type !== TileStatusType.moveHighlight && status.type !== TileStatusType.captureHighlight;
+      });
+    }
+  }
+};
+
+export const CaptureContent = (tile: Tile) => {
+  tile.content = null;
+};
+
+export const StartTurn = (state: GameState) => {
+  state.turn += 1;
+  AnalyzeThreats(state);
+  CheckForGameOver(state);
+};
+
+export const CheckForGameOver = (state: GameState): { gameOver: boolean; result: GameOverState } => {
+  let whiteHasMove = false;
+  let blackHasMove = false;
+  for (const col of state.board) {
+    for (const tile of col) {
+      if (tile.statuses.some((status) => status.type === TileStatusType.blackThreatening)) {
+        blackHasMove = true;
+      }
+      if (tile.statuses.some((status) => status.type === TileStatusType.whiteThreatening)) {
+        whiteHasMove = true;
+      }
+      if ((state.turn % 2 === 0 && blackHasMove) || (state.turn % 2 === 1 && whiteHasMove)) {
+        return { gameOver: false, result: GameOverState.unfinished };
+      }
+    }
+  }
+  // Current player loses
+  if (state.turn % 2 === 0) {
+    const kingTile = GetTileWithKing(state, PieceOwner.black);
+    if (kingTile?.statuses.some((status) => status.type === TileStatusType.whiteThreatening)) {
+      return { gameOver: true, result: GameOverState.blackStalemated };
+    } else {
+      return { gameOver: true, result: GameOverState.whiteVictory };
+    }
+  } else {
+    const kingTile = GetTileWithKing(state, PieceOwner.white);
+    if (kingTile?.statuses.some((status) => status.type === TileStatusType.blackThreatening)) {
+      return { gameOver: true, result: GameOverState.whiteStalemated };
+    } else {
+      return { gameOver: true, result: GameOverState.blackVictory };
+    }
+  }
+};
+
+export const GetTileWithKing = (state: GameState, player: PieceOwner): Tile | undefined => {
+  for (const col of state.board) {
+    for (const tile of col) {
+      if (tile.content !== null && tile.content.owner === player && tile.content.type === PieceType.king) {
+        return tile;
       }
     }
   }

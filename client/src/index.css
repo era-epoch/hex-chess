@@ -11,6 +11,9 @@ body {
   --background: #eee;
   --contrast: #222;
   --offset: #aaa;
+  --primary-light: #f0e68c;
+  --primary-dark: #8b8000;
+  --primary: yellow;
 }
 
 code {
@@ -59,7 +62,7 @@ code {
   justify-content: center;
   align-items: center;
   text-align: center;
-  transition: all 100ms ease;
+  transition: all 200ms ease;
 }
 
 .hex-left {
@@ -97,6 +100,21 @@ code {
   top: 0;
   left: 0;
   font-size: calc(var(--hex-size) * 3 / 4);
+  z-index: 10;
+}
+
+.piece-silhouette-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  font-size: calc(var(--hex-size) * 3 / 4);
+  z-index: 9;
+  color: var(--primary-dark);
 }
 
 .piece-wrapper {
@@ -124,6 +142,7 @@ code {
   cursor: pointer;
   height: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 0rem 1rem;
@@ -149,5 +168,7 @@ code {
   left: 0;
   bottom: 0;
   font-weight: bold;
+  display: flex;
+  flex-direction: column;
   /* padding: 1rem; */
 }

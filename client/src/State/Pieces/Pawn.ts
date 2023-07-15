@@ -62,11 +62,11 @@ export const CalculatePawnMoves: MoveCalculationFunction = (state: GameState, pa
   // Check for captures
   let captures = []; // [q, r]
   if (pawn.owner === PieceOwner.white) {
-    captures.push([-1, 1]);
-    captures.push([0, -1]);
-  } else {
-    captures.push([0, 1]);
+    captures.push([-1, 0]);
     captures.push([1, -1]);
+  } else {
+    captures.push([1, 0]);
+    captures.push([-1, 1]);
   }
   for (const capture of captures) {
     let captureTile = GetTileAtAxial(state, { q: start.q + capture[0], r: start.r + capture[1] });

@@ -9,6 +9,7 @@ function App() {
   const dispatch = useDispatch();
   const firstLoad = useRef(true);
   if (firstLoad.current) {
+    // This runs twice but I think only in dev mode(???)
     dispatch(resetBoard());
     firstLoad.current = false;
   }

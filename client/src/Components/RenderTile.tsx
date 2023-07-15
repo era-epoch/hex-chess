@@ -4,7 +4,7 @@ import CSS from 'csstype';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PieceToIcon } from '../State/Pieces/maps';
-import { highlightMoves, selectTile, unhighlightMoves } from '../State/Slices/gameSlice';
+import { attemptMove, highlightMoves, selectTile, unhighlightAllMoves } from '../State/Slices/gameSlice';
 import { AxialToGrid, GridToAxial } from '../State/Slices/helpers';
 import { RootState } from '../State/rootReducer';
 import { PieceOwner, Tile, TileStatusType } from '../types';
@@ -24,10 +24,11 @@ const RenderTile = (props: Props): JSX.Element => {
 
   let selected = false;
   if (selectedTile !== null) {
-    selected = selectedTile.q === props.tile.axial.q && selectedTile.r === props.tile.axial.r;
+    selected = selectedTile.id === props.tile.id;
   }
 
   const [highlightActive, setHighlightActive] = useState(false);
+  const [hovering, setHovering] = useState(false);
 
   const wrapperStyle = {
     '--piece-color': 'white',
@@ -37,14 +38,14 @@ const RenderTile = (props: Props): JSX.Element => {
   if (piece !== null) {
     if (piece.owner === PieceOwner.black) {
       if (selected) {
-        wrapperStyle['--piece-color'] = '#8B8000';
+        wrapperStyle['--piece-color'] = 'var(--primary-dark)';
       } else {
         wrapperStyle['--piece-color'] = 'black';
       }
       wrapperStyle['--piece-contrast'] = 'white';
     } else {
       if (selected) {
-        wrapperStyle['--piece-color'] = '#F0E68C';
+        wrapperStyle['--piece-color'] = 'var(--primary-light)';
       }
     }
   }
@@ -69,31 +70,57 @@ const RenderTile = (props: Props): JSX.Element => {
       break;
   }
 
+  if (hovering) {
+    tileStyle['--hex-colour'] = 'var(--primary)';
+  }
+
   if (props.tile.playable === false) {
     tileStyle['--hex-colour'] = 'transparent';
   }
 
   if (props.tile.statuses.some((status) => status.type === TileStatusType.captureHighlight)) {
     tileStyle['--hex-colour'] = 'red';
+    tileStyle['cursor'] = 'pointer';
   } else if (props.tile.statuses.some((status) => status.type === TileStatusType.moveHighlight)) {
-    tileStyle['--hex-colour'] = 'yellow';
+    tileStyle['--hex-colour'] = 'var(--primary)';
+    tileStyle['cursor'] = 'pointer';
   }
 
-  const handlePieceClick = () => {
+  const handlePieceClick = (e: React.MouseEvent<HTMLElement>) => {
     if (piece !== null) {
+      if (props.tile.statuses.some((status) => status.type === TileStatusType.captureHighlight)) return;
       if (highlightActive) {
-        dispatch(unhighlightMoves(piece));
+        dispatch(unhighlightAllMoves());
         dispatch(selectTile(null));
       } else {
         dispatch(highlightMoves(piece));
-        dispatch(selectTile(props.tile.axial));
+        dispatch(selectTile(props.tile));
       }
     }
     setHighlightActive(!highlightActive);
   };
 
+  const handleTileClick = (e: React.MouseEvent<HTMLElement>) => {
+    console.log('Clicked: ', props.tile.axial);
+    dispatch(attemptMove(props.tile.axial));
+  };
+
+  const handleMouseEnter = () => {
+    setHovering(true);
+  };
+
+  const handleMouseLeave = () => {
+    setHovering(false);
+  };
+
   return (
-    <div className="tile" style={tileStyle}>
+    <div
+      className="tile"
+      style={tileStyle}
+      onClick={handleTileClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="relative-parent">
         <div className="hex">
           <div className="hex-left"></div>
@@ -109,6 +136,13 @@ const RenderTile = (props: Props): JSX.Element => {
             >
               <FontAwesomeIcon icon={PieceToIcon.get(piece.type) as IconDefinition} />
             </div>
+          ) : null}
+        </div>
+        <div className="piece-silhouette-container">
+          {hovering &&
+          selectedTile?.content !== null &&
+          props.tile.statuses.some((status) => status.type === TileStatusType.moveHighlight) ? (
+            <FontAwesomeIcon icon={PieceToIcon.get(selectedTile!.content.type) as IconDefinition} />
           ) : null}
         </div>
       </div>

@@ -72,3 +72,11 @@ export type Tile = {
   playable: boolean;
   boundary: boolean;
 };
+
+export enum GameOverState {
+  unfinished,
+  whiteVictory,
+  blackVictory,
+  whiteStalemated,
+  blackStalemated,
+}
