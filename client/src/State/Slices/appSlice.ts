@@ -1,14 +1,22 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-export interface AppState {}
+export interface AppState {
+  activeGame: boolean;
+}
 
-const initialAppState: AppState = {};
+const initialAppState: AppState = {
+  activeGame: true,
+};
 
 const appSlice = createSlice({
   name: 'app',
   initialState: initialAppState,
-  reducers: {},
+  reducers: {
+    setActiveGame: (state: AppState, action: PayloadAction<boolean>) => {
+      state.activeGame = action.payload;
+    },
+  },
 });
 
 export default appSlice.reducer;
-export const {} = appSlice.actions;
+export const { setActiveGame } = appSlice.actions;

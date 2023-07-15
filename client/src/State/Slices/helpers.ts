@@ -1,11 +1,12 @@
 import { v4 as uuid } from 'uuid';
-import { AxialCoordinate, GridCoordinate, PieceOwner, Tile, TileStatusType } from '../../types';
+import { AxialCoordinate, GridCoordinate, Piece, PieceOwner, Tile, TileStatusType } from '../../types';
 import { createBishop } from '../Pieces/Bishop';
 import { createKing } from '../Pieces/King';
 import { createKnight } from '../Pieces/Knight';
 import { createPawn } from '../Pieces/Pawn';
 import { createQueen } from '../Pieces/Queen';
 import { createRook } from '../Pieces/Rook';
+import { CalculateMovesFunctions } from '../Pieces/maps';
 import { GameState } from './gameSlice';
 
 export const IsGridPositionPlayable = (pos: GridCoordinate): boolean => {
@@ -168,4 +169,45 @@ export const ResetGameBoard = (gameState: GameState) => {
   newBoard[6][1].content = createKing({ col: 6, row: 1 }, PieceOwner.black);
 
   gameState.board = newBoard;
+};
+
+export const AnalyzeThreats = (state: GameState) => {
+  for (const col of state.board) {
+    for (const tile of col) {
+      if (tile.content !== null) {
+        PopulateThreats(state, tile.content);
+      }
+    }
+  }
+};
+
+export const PopulateThreats = (state: GameState, piece: Piece) => {
+  const moveF = CalculateMovesFunctions.get(piece.type);
+  if (moveF === undefined) return;
+  const moves = moveF(state, piece);
+  for (const move of moves) {
+    const tile = GetTileAtAxial(state, move.axial);
+    if (piece.owner === PieceOwner.black) {
+      tile?.statuses.push({ type: TileStatusType.blackThreatening });
+    } else {
+      tile?.statuses.push({ type: TileStatusType.whiteThreatening });
+    }
+  }
+};
+
+export const AdvanceTurn = (state: GameState) => {
+  ClearThreatStatuses(state);
+  state.turn += 1;
+};
+
+export const ClearThreatStatuses = (state: GameState) => {
+  for (const col of state.board) {
+    for (const tile of col) {
+      if (tile.content !== null) {
+        tile.statuses = tile.statuses.filter((status) => {
+          return status.type !== TileStatusType.whiteThreatening && status.type !== TileStatusType.blackThreatening;
+        });
+      }
+    }
+  }
 };

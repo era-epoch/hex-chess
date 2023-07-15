@@ -1,11 +1,12 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { AxialCoordinate, MoveStatus, MoveType, Piece, Tile, TileStatusType } from '../../types';
 import { CalculateMovesFunctions } from '../Pieces/maps';
-import { GetTileAtAxial, ResetGameBoard, createTile } from './helpers';
+import { AdvanceTurn, AnalyzeThreats, GetTileAtAxial, ResetGameBoard, createTile } from './helpers';
 
 export interface GameState {
   board: Tile[][];
   selected: AxialCoordinate | null;
+  turn: number;
 }
 
 export const emptyBoard: Tile[][] = [];
@@ -20,6 +21,7 @@ for (let i = 0; i < 11; i++) {
 const initialGameState: GameState = {
   board: emptyBoard,
   selected: null,
+  turn: 0,
 };
 
 const gameSlice = createSlice({
@@ -27,7 +29,10 @@ const gameSlice = createSlice({
   initialState: initialGameState,
   reducers: {
     resetBoard: (state: GameState) => {
+      state.turn = 0;
       ResetGameBoard(state);
+      AdvanceTurn(state);
+      AnalyzeThreats(state);
     },
     highlightMoves: (state: GameState, action: PayloadAction<Piece>) => {
       const moveF = CalculateMovesFunctions.get(action.payload.type);

@@ -2,14 +2,17 @@ import CSS from 'csstype';
 import { useSelector } from 'react-redux';
 import { RootState } from '../State/rootReducer';
 import RenderTile from './RenderTile';
+import TurnCounter from './TurnCounter';
 
 interface Props {}
 
 const GameCanvas = (props: Props): JSX.Element => {
   const board = useSelector((state: RootState) => state.game.board);
-  const tileHexSize = 40;
-  const hexColour = 'var(--contrast)';
   const tilePadding = 5;
+
+  const limitingFactor = window.innerHeight > window.innerWidth ? window.innerWidth : window.innerHeight - 50;
+  const tileHexSize = Math.floor((limitingFactor - 11 * tilePadding) / (12 * Math.sqrt(3)));
+  const hexColour = 'var(--contrast)';
 
   const canvasStyle: CSS.Properties = {
     width: `${board.length * (tileHexSize * 1.5) + (board.length - 1) * tilePadding + tileHexSize / 2}px`,
@@ -51,6 +54,7 @@ const GameCanvas = (props: Props): JSX.Element => {
           );
         })}
       </div>
+      <TurnCounter />
     </div>
   );
 };

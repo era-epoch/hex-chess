@@ -17,17 +17,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
+.nodisplay {
+  display: none !important;
+}
+
 .App {
-  width: 98vw;
+  width: 100vw;
   height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
 }
 
 .game-canvas {
-  width: 100%;
-  height: 100%;
   display: flex;
+  position: relative;
 }
 
 .board {
@@ -54,7 +59,7 @@ code {
   justify-content: center;
   align-items: center;
   text-align: center;
-  transition: all 200ms ease;
+  transition: all 100ms ease;
 }
 
 .hex-left {
@@ -102,5 +107,47 @@ code {
   background-color: var(--piece-color);
   color: var(--piece-contrast);
   cursor: pointer;
+  transition: all 100ms ease;
+}
+
+.menu {
+  height: 50px;
+  width: 100%;
+  background-color: var(--contrast);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--background);
+}
+
+.menu-op {
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0rem 1rem;
+  --element-border: 1px solid var(--background);
+  border-right: var(--element-border);
   transition: all 200ms ease;
+}
+
+.menu-op:hover {
+  background-color: #444;
+}
+
+.menu-op:active {
+  background-color: var(--offset);
+}
+
+.menu-op:first-of-type {
+  border-left: var(--element-border);
+}
+
+.turn-counter-container {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-weight: bold;
+  /* padding: 1rem; */
 }
