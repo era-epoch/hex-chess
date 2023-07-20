@@ -21,3 +21,7 @@ steps:
 # about this project
 
 This is a webapp written in Typescript (React+Redux) for playing the game of hex-chess. I intend to work on this when I have the time and motivation.
+
+# beginner's tips
+- bishops stay on their own colour tiles, each side has 1 bishop for each of the three colours of tile
+- knights will always move to a different coloured tile
