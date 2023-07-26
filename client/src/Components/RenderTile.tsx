@@ -1,4 +1,4 @@
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition, faSkullCrossbones } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CSS from 'csstype';
 import { useState } from 'react';
@@ -89,9 +89,6 @@ const RenderTile = (props: Props): JSX.Element => {
   // if (props.tile.statuses.some((status) => status.type === TileStatusType.whitePromoTile)) {
   //   tileStyle['--hex-colour'] = 'purple';
   // }
-  // if (props.tile.statuses.some((status) => status.type === TileStatusType.blackPromoTile)) {
-  //   tileStyle['--hex-colour'] = 'orange';
-  // }
 
   const handlePieceClick = (e: React.MouseEvent<HTMLElement>) => {
     if (piece !== null) {
@@ -150,6 +147,11 @@ const RenderTile = (props: Props): JSX.Element => {
           selectedTile?.content !== null &&
           props.tile.statuses.some((status) => status.type === TileStatusType.moveHighlight) ? (
             <FontAwesomeIcon icon={PieceToIcon.get(selectedTile!.content.type) as IconDefinition} />
+          ) : null}
+          {hovering &&
+          selectedTile?.content !== null &&
+          props.tile.statuses.some((status) => status.type === TileStatusType.captureHighlight) ? (
+            <FontAwesomeIcon icon={faSkullCrossbones} className="kill" />
           ) : null}
         </div>
       </div>

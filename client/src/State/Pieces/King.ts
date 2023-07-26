@@ -63,10 +63,10 @@ export const CalculateKingMoves: MoveCalculationFunction = (state: GameState, ki
 
     if (targetTile.content !== null) {
       if (targetTile.content.owner !== king.owner) {
-        moves.push({ axial: targetTile.axial, type: MoveType.capture });
+        moves.push({ axial: targetTile.axial, type: MoveType.capture, source: king });
       }
     } else {
-      moves.push({ axial: targetTile.axial, type: MoveType.standard });
+      moves.push({ axial: targetTile.axial, type: MoveType.standard, source: king });
     }
   }
   return moves;

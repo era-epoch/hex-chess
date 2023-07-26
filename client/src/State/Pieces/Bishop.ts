@@ -41,10 +41,10 @@ export const CalculateBishopMoves: MoveCalculationFunction = (state: GameState, 
       } else if (targetTile.content !== null) {
         obstructed = true;
         if (targetTile.content.owner !== bishop.owner) {
-          moves.push({ axial: targetTile.axial, type: MoveType.capture });
+          moves.push({ axial: targetTile.axial, type: MoveType.capture, source: bishop });
         }
       } else {
-        moves.push({ axial: targetTile.axial, type: MoveType.standard });
+        moves.push({ axial: targetTile.axial, type: MoveType.standard, source: bishop });
       }
     }
   }

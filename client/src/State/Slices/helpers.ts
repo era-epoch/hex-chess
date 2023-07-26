@@ -271,10 +271,11 @@ export const PopulateThreats = (state: GameState, piece: Piece, checkKing: boole
     if (!validMove) continue;
 
     const tile = GetTileAtAxial(state, move.axial);
+
     if (piece.owner === PieceOwner.black) {
-      tile?.statuses.push({ type: TileStatusType.blackThreatening, origin: piece } as MoveStatus);
+      tile?.statuses.push({ type: TileStatusType.blackThreatening, move: move } as MoveStatus);
     } else {
-      tile?.statuses.push({ type: TileStatusType.whiteThreatening, origin: piece } as MoveStatus);
+      tile?.statuses.push({ type: TileStatusType.whiteThreatening, move: move } as MoveStatus);
     }
   }
 };
@@ -370,4 +371,36 @@ export const CheckForPawnPromotion = (state: GameState, mover: Piece, targetTile
 
 export const GetCurrentPlayer = (state: GameState): PieceOwner => {
   return state.turn % 2 === 0 ? PieceOwner.black : PieceOwner.white;
+};
+
+export const HandlePawnDoubleMove = (
+  state: GameState,
+  mover: Piece,
+  targetTile: Tile,
+  originAxial: AxialCoordinate,
+): void => {
+  // Clear all previous en passants
+  for (const col of state.board) {
+    for (const tile of col) {
+      state.board[tile.pos.col][tile.pos.row].statuses = tile.statuses.filter((status) => {
+        return status.type !== TileStatusType.enPassantBlack && status.type !== TileStatusType.enPassantWhite;
+      });
+    }
+  }
+
+  // If mover was a pawn moving two tiles, mark the jumped tile with an en passant status
+  if (mover.type === PieceType.pawn && Math.abs(targetTile.axial.r - originAxial.r) >= 2) {
+    const enPassantStatus = state.turn % 2 === 0 ? TileStatusType.enPassantBlack : TileStatusType.enPassantWhite;
+    if (targetTile.axial.r - originAxial.r === 2) {
+      // Moving UP
+      const epAxial: AxialCoordinate = { q: targetTile.axial.q, r: targetTile.axial.r - 1 };
+      const epPos: GridCoordinate = AxialToGrid(epAxial);
+      state.board[epPos.col][epPos.row].statuses.push({ type: enPassantStatus });
+    } else if (targetTile.axial.r - originAxial.r === -2) {
+      // Moving DOWN
+      const epAxial: AxialCoordinate = { q: targetTile.axial.q, r: targetTile.axial.r + 1 };
+      const epPos: GridCoordinate = AxialToGrid(epAxial);
+      state.board[epPos.col][epPos.row].statuses.push({ type: enPassantStatus });
+    }
+  }
 };

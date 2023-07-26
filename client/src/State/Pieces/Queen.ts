@@ -43,10 +43,10 @@ export const CalculateQueenMoves: MoveCalculationFunction = (state: GameState, q
       } else if (targetTile.content !== null) {
         obstructed = true;
         if (targetTile.content.owner !== queen.owner) {
-          moves.push({ axial: targetTile.axial, type: MoveType.capture });
+          moves.push({ axial: targetTile.axial, type: MoveType.capture, source: queen });
         }
       } else {
-        moves.push({ axial: targetTile.axial, type: MoveType.standard });
+        moves.push({ axial: targetTile.axial, type: MoveType.standard, source: queen });
       }
     }
   }
@@ -71,10 +71,10 @@ export const CalculateQueenMoves: MoveCalculationFunction = (state: GameState, q
       } else if (targetTile.content !== null) {
         obstructed = true;
         if (targetTile.content.owner !== queen.owner) {
-          moves.push({ axial: targetTile.axial, type: MoveType.capture });
+          moves.push({ axial: targetTile.axial, type: MoveType.capture, source: queen });
         }
       } else {
-        moves.push({ axial: targetTile.axial, type: MoveType.standard });
+        moves.push({ axial: targetTile.axial, type: MoveType.standard, source: queen });
       }
     }
   }

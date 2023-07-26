@@ -36,7 +36,8 @@ export type Piece = {
 export enum TileStatusType {
   whiteThreatening,
   blackThreatening,
-  enPassant,
+  enPassantBlack,
+  enPassantWhite,
   whitePawnOrigin,
   blackPawnOrigin,
   moveHighlight,
@@ -52,17 +53,19 @@ export type TileStatus = {
 export enum MoveType {
   standard,
   capture,
+  enPassantCapture,
 }
 
 export type MoveInfo = {
   axial: AxialCoordinate;
   type: MoveType;
+  source: Piece;
 };
 
 export type MoveCalculationFunction = (state: GameState, piece: Piece) => MoveInfo[];
 
 export type MoveStatus = TileStatus & {
-  origin: Piece;
+  move: MoveInfo;
 };
 
 export type Tile = {

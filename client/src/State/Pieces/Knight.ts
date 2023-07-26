@@ -42,10 +42,10 @@ export const CalculateKnightMoves: MoveCalculationFunction = (state: GameState, 
       continue;
     } else if (targetTile.content !== null) {
       if (targetTile.content.owner !== knight.owner) {
-        moves.push({ axial: targetTile.axial, type: MoveType.capture });
+        moves.push({ axial: targetTile.axial, type: MoveType.capture, source: knight });
       }
     } else {
-      moves.push({ axial: targetTile.axial, type: MoveType.standard });
+      moves.push({ axial: targetTile.axial, type: MoveType.standard, source: knight });
     }
   }
   return moves;

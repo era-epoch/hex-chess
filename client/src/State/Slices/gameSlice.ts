@@ -3,6 +3,7 @@ import {
   AxialCoordinate,
   GameOverState,
   MoveStatus,
+  MoveType,
   Piece,
   PieceOwner,
   PieceType,
@@ -14,12 +15,14 @@ import { createKnight } from '../Pieces/Knight';
 import { createQueen } from '../Pieces/Queen';
 import { createRook } from '../Pieces/Rook';
 import {
+  AxialToGrid,
   CaptureContent,
   CheckForPawnPromotion,
   ClearMoveHighlights,
   EndTurn,
   GetCurrentPlayer,
   GetTileAtAxial,
+  HandlePawnDoubleMove,
   ResetGameBoard,
   StartTurn,
   createTile,
@@ -68,13 +71,13 @@ const gameSlice = createSlice({
       for (const col of state.board) {
         for (const tile of col) {
           tile.statuses.forEach((status) => {
-            if ('origin' in status) {
+            if ('move' in status) {
               let s = status as MoveStatus;
-              if (s.origin.id === action.payload.id) {
-                if (tile.content === null) {
-                  tile.statuses.push({ type: TileStatusType.moveHighlight, origin: action.payload } as MoveStatus);
+              if (s.move.source.id === action.payload.id) {
+                if (s.move.type === MoveType.capture || s.move.type === MoveType.enPassantCapture) {
+                  tile.statuses.push({ type: TileStatusType.captureHighlight } as MoveStatus);
                 } else {
-                  tile.statuses.push({ type: TileStatusType.captureHighlight, origin: action.payload } as MoveStatus);
+                  tile.statuses.push({ type: TileStatusType.moveHighlight } as MoveStatus);
                 }
               }
             }
@@ -86,9 +89,9 @@ const gameSlice = createSlice({
       for (const col of state.board) {
         for (const tile of col) {
           tile.statuses = tile.statuses.filter((status) => {
-            if ('origin' in status) {
+            if ('move' in status) {
               let s = status as MoveStatus;
-              return s.origin.id !== action.payload.id;
+              return s.move.source.id === action.payload.id;
             } else {
               return true;
             }
@@ -115,22 +118,50 @@ const gameSlice = createSlice({
       if (targetTile === undefined) return;
       if (
         targetTile.statuses.some((status) => {
-          if ('origin' in status) {
+          if ('move' in status) {
             let s = status as MoveStatus;
-            return s.origin.id === mover.id;
+            return s.move.source.id === mover.id;
           } else {
             return false;
           }
         })
       ) {
+        const moveStatus = targetTile.statuses.find((status) => {
+          if ('move' in status) {
+            let s = status as MoveStatus;
+            return s.move.source.id === mover.id;
+          } else {
+            return false;
+          }
+        }) as MoveStatus;
         // MOVE!
         CaptureContent(state, targetTile);
+
+        // En-passant capturing
+        if (moveStatus.move.type === MoveType.enPassantCapture) {
+          if (mover.owner === PieceOwner.black) {
+            const epAxial: AxialCoordinate = { q: targetTile.axial.q, r: targetTile.axial.r - 1 };
+            const epPos = AxialToGrid(epAxial);
+            const enPassantTile = state.board[epPos.col][epPos.row];
+            CaptureContent(state, enPassantTile);
+          } else {
+            const epAxial: AxialCoordinate = { q: targetTile.axial.q, r: targetTile.axial.r + 1 };
+            const epPos = AxialToGrid(epAxial);
+            const enPassantTile = state.board[epPos.col][epPos.row];
+            CaptureContent(state, enPassantTile);
+          }
+        }
+
         // Lift-off
+        const originAxial: AxialCoordinate = { q: mover.axial.q, r: mover.axial.r };
         state.board[mover.pos.col][mover.pos.row].content = null;
+
         // Touch-down
         targetTile.content = mover;
         mover.pos = targetTile.pos;
         mover.axial = targetTile.axial;
+
+        HandlePawnDoubleMove(state, mover, targetTile, originAxial);
 
         if (CheckForPawnPromotion(state, mover, targetTile)) {
           state.pawnPromotionFlag = true;

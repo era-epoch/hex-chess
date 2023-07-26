@@ -41,10 +41,10 @@ export const CalculateRookMoves: MoveCalculationFunction = (state: GameState, ro
       } else if (targetTile.content !== null) {
         obstructed = true;
         if (targetTile.content.owner !== rook.owner) {
-          moves.push({ axial: targetTile.axial, type: MoveType.capture });
+          moves.push({ axial: targetTile.axial, type: MoveType.capture, source: rook });
         }
       } else {
-        moves.push({ axial: targetTile.axial, type: MoveType.standard });
+        moves.push({ axial: targetTile.axial, type: MoveType.standard, source: rook });
       }
     }
   }
