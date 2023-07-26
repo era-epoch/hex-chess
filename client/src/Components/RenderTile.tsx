@@ -27,7 +27,7 @@ const RenderTile = (props: Props): JSX.Element => {
     selected = selectedTile.id === props.tile.id;
   }
 
-  const [highlightActive, setHighlightActive] = useState(false);
+  const highlightActive = selectedTile?.id === props.tile.id;
   const [hovering, setHovering] = useState(false);
 
   const wrapperStyle = {
@@ -101,7 +101,6 @@ const RenderTile = (props: Props): JSX.Element => {
         dispatch(selectTile(props.tile));
       }
     }
-    setHighlightActive(!highlightActive);
   };
 
   const handleTileClick = (e: React.MouseEvent<HTMLElement>) => {
