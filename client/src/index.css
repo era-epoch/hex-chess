@@ -115,6 +115,7 @@ code {
   font-size: calc(var(--hex-size) * 3 / 4);
   z-index: 9;
   color: var(--primary-dark);
+  text-align: center;
 }
 
 .piece-wrapper {
@@ -126,6 +127,7 @@ code {
   color: var(--piece-contrast);
   cursor: pointer;
   transition: all 100ms ease;
+  text-align: center;
 }
 
 .menu {

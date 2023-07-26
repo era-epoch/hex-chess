@@ -86,6 +86,13 @@ const RenderTile = (props: Props): JSX.Element => {
     tileStyle['cursor'] = 'pointer';
   }
 
+  // if (props.tile.statuses.some((status) => status.type === TileStatusType.whitePromoTile)) {
+  //   tileStyle['--hex-colour'] = 'purple';
+  // }
+  // if (props.tile.statuses.some((status) => status.type === TileStatusType.blackPromoTile)) {
+  //   tileStyle['--hex-colour'] = 'orange';
+  // }
+
   const handlePieceClick = (e: React.MouseEvent<HTMLElement>) => {
     if (piece !== null) {
       if (props.tile.statuses.some((status) => status.type === TileStatusType.captureHighlight)) return;

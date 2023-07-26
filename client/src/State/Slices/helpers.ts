@@ -9,6 +9,7 @@ import {
   PieceOwner,
   PieceType,
   Tile,
+  TileStatus,
   TileStatusType,
 } from '../../types';
 import { createBishop } from '../Pieces/Bishop';
@@ -115,7 +116,42 @@ export const ResetGameBoard = (gameState: GameState) => {
     }
   }
 
-  // Whtie Piece setup
+  // Mark promotion tiles
+
+  const whitePromoTiles = [
+    { col: 0, row: 3 },
+    { col: 1, row: 2 },
+    { col: 2, row: 2 },
+    { col: 3, row: 1 },
+    { col: 4, row: 1 },
+    { col: 5, row: 0 },
+    { col: 6, row: 1 },
+    { col: 7, row: 1 },
+    { col: 8, row: 2 },
+    { col: 9, row: 2 },
+    { col: 10, row: 3 },
+  ];
+  for (const tile of whitePromoTiles) {
+    newBoard[tile.col][tile.row].statuses.push({ type: TileStatusType.whitePromoTile });
+  }
+  const blackPromoTiles = [
+    { col: 0, row: 8 },
+    { col: 1, row: 8 },
+    { col: 2, row: 9 },
+    { col: 3, row: 9 },
+    { col: 4, row: 10 },
+    { col: 5, row: 10 },
+    { col: 6, row: 10 },
+    { col: 7, row: 9 },
+    { col: 8, row: 9 },
+    { col: 9, row: 8 },
+    { col: 10, row: 8 },
+  ];
+  for (const tile of blackPromoTiles) {
+    newBoard[tile.col][tile.row].statuses.push({ type: TileStatusType.blackPromoTile });
+  }
+
+  // White Piece setup
 
   const whitePawnsStartingCoordinates: GridCoordinate[] = [
     { col: 1, row: 8 },
@@ -269,8 +305,8 @@ export const ClearMoveHighlights = (state: GameState) => {
   }
 };
 
-export const CaptureContent = (tile: Tile) => {
-  tile.content = null;
+export const CaptureContent = (state: GameState, tile: Tile) => {
+  state.board[tile.pos.col][tile.pos.row].content = null;
 };
 
 export const StartTurn = (state: GameState) => {
@@ -321,4 +357,17 @@ export const GetTileWithKing = (state: GameState, player: PieceOwner): Tile | un
       }
     }
   }
+};
+
+export const CheckForPawnPromotion = (state: GameState, mover: Piece, targetTile: Tile): boolean => {
+  if (mover.type !== PieceType.pawn) return false;
+  if (mover.owner === PieceOwner.black) {
+    return targetTile.statuses.some((status: TileStatus) => status.type === TileStatusType.blackPromoTile);
+  } else {
+    return targetTile.statuses.some((status: TileStatus) => status.type === TileStatusType.whitePromoTile);
+  }
+};
+
+export const GetCurrentPlayer = (state: GameState): PieceOwner => {
+  return state.turn % 2 === 0 ? PieceOwner.black : PieceOwner.white;
 };

@@ -1,9 +1,24 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { AxialCoordinate, GameOverState, MoveStatus, Piece, PieceOwner, Tile, TileStatusType } from '../../types';
+import {
+  AxialCoordinate,
+  GameOverState,
+  MoveStatus,
+  Piece,
+  PieceOwner,
+  PieceType,
+  Tile,
+  TileStatusType,
+} from '../../types';
+import { createBishop } from '../Pieces/Bishop';
+import { createKnight } from '../Pieces/Knight';
+import { createQueen } from '../Pieces/Queen';
+import { createRook } from '../Pieces/Rook';
 import {
   CaptureContent,
+  CheckForPawnPromotion,
   ClearMoveHighlights,
   EndTurn,
+  GetCurrentPlayer,
   GetTileAtAxial,
   ResetGameBoard,
   StartTurn,
@@ -15,6 +30,8 @@ export interface GameState {
   board: Tile[][];
   selected: Tile | null;
   turn: number;
+  pawnPromotionFlag: boolean;
+  promotionTile: Tile | null;
 }
 
 export const emptyBoard: Tile[][] = [];
@@ -31,6 +48,8 @@ const initialGameState: GameState = {
   board: emptyBoard,
   selected: null,
   turn: 0,
+  pawnPromotionFlag: false,
+  promotionTile: null,
 };
 
 const gameSlice = createSlice({
@@ -105,7 +124,7 @@ const gameSlice = createSlice({
         })
       ) {
         // MOVE!
-        CaptureContent(targetTile);
+        CaptureContent(state, targetTile);
         // Lift-off
         state.board[mover.pos.col][mover.pos.row].content = null;
         // Touch-down
@@ -113,13 +132,52 @@ const gameSlice = createSlice({
         mover.pos = targetTile.pos;
         mover.axial = targetTile.axial;
 
-        EndTurn(state);
-        StartTurn(state);
+        if (CheckForPawnPromotion(state, mover, targetTile)) {
+          state.pawnPromotionFlag = true;
+          state.promotionTile = targetTile;
+        } else {
+          EndTurn(state);
+          StartTurn(state);
+        }
       }
+    },
+    executePromotePiece: (state: GameState, action: PayloadAction<PieceType>) => {
+      const promoPlayer = GetCurrentPlayer(state);
+      const promoPos = state.promotionTile!.pos;
+      let newPiece: Piece;
+      switch (action.payload) {
+        case PieceType.bishop:
+          newPiece = createBishop(promoPos, promoPlayer);
+          break;
+        case PieceType.knight:
+          newPiece = createKnight(promoPos, promoPlayer);
+          break;
+        case PieceType.rook:
+          newPiece = createRook(promoPos, promoPlayer);
+          break;
+        default:
+          newPiece = createQueen(promoPos, promoPlayer);
+          break;
+      }
+      state.board[promoPos.col][promoPos.row].content = newPiece;
+
+      state.pawnPromotionFlag = false;
+      state.promotionTile = null;
+
+      // And now we end the turn
+      EndTurn(state);
+      StartTurn(state);
     },
   },
 });
 
 export default gameSlice.reducer;
-export const { resetBoard, highlightMoves, unhighlightMoves, selectTile, unhighlightAllMoves, attemptMove } =
-  gameSlice.actions;
+export const {
+  resetBoard,
+  highlightMoves,
+  unhighlightMoves,
+  selectTile,
+  unhighlightAllMoves,
+  attemptMove,
+  executePromotePiece,
+} = gameSlice.actions;

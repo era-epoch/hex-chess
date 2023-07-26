@@ -41,6 +41,8 @@ export enum TileStatusType {
   blackPawnOrigin,
   moveHighlight,
   captureHighlight,
+  whitePromoTile,
+  blackPromoTile,
 }
 
 export type TileStatus = {
@@ -79,4 +81,13 @@ export enum GameOverState {
   blackVictory,
   whiteStalemated,
   blackStalemated,
+}
+
+export enum ZIndices {
+  Dialogues = 100,
+}
+
+export enum Dialogue {
+  none,
+  promotion,
 }

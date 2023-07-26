@@ -1,0 +1,112 @@
+.dialogue {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.dialogue-internal {
+  position: relative;
+  border-radius: 4px;
+  transition: all 250ms ease;
+}
+
+.dialogue-content {
+  max-width: min(600px, 95vw);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+  color: var(--contrast);
+  padding: 2rem;
+  gap: 1rem;
+  z-index: 2;
+  border-radius: inherit;
+}
+
+.dialogue-section {
+  display: flex;
+  width: 100%;
+}
+
+.dialogue-controls {
+  display: flex;
+  justify-content: center;
+}
+
+.fade-in {
+  animation: fadeIn var(--fade-duration) ease forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 1;
+  }
+}
+
+.fade-out {
+  animation: fadeOut var(--fade-duration) ease forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.promo-title {
+  font-weight: bold;
+  text-align: center;
+  justify-content: center;
+}
+
+.promo-options {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.promo-option {
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  font-size: 2rem;
+  cursor: pointer;
+  background-color: var(--background);
+  color: var(--contrast);
+  transition: all 200ms ease;
+  border: 3px solid var(--contrast);
+  box-shadow: none;
+}
+
+.promo-option:hover {
+  background-color: var(--contrast);
+  color: var(--background);
+  transform: translate(-2px, -2px);
+  box-shadow: 1px 1px 5px var(--contrast);
+}
+
+.promo-option:active {
+  transform: translate(0px, 0px);
+  box-shadow: none;
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
