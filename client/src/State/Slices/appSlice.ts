@@ -4,11 +4,15 @@ import { Dialogue } from '../../types';
 export interface AppState {
   activeGame: boolean;
   activeDialogue: Dialogue;
+  onlineGameId: string | null;
+  onlinePlayerId: string | null;
 }
 
 const initialAppState: AppState = {
   activeGame: true,
   activeDialogue: Dialogue.none,
+  onlineGameId: null,
+  onlinePlayerId: null,
 };
 
 const appSlice = createSlice({
@@ -21,8 +25,14 @@ const appSlice = createSlice({
     setActiveDialogue: (state: AppState, action: PayloadAction<Dialogue>) => {
       state.activeDialogue = action.payload;
     },
+    setOnlineGameId: (state: AppState, action: PayloadAction<string>) => {
+      state.onlineGameId = action.payload;
+    },
+    setOnlinePlayerId: (state: AppState, action: PayloadAction<string>) => {
+      state.onlinePlayerId = action.payload;
+    },
   },
 });
 
 export default appSlice.reducer;
-export const { setActiveGame, setActiveDialogue } = appSlice.actions;
+export const { setActiveGame, setActiveDialogue, setOnlineGameId, setOnlinePlayerId } = appSlice.actions;

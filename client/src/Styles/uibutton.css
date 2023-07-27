@@ -1,0 +1,42 @@
+.ui-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+  border-radius: 4px;
+  color: var(--button-primary);
+  cursor: pointer;
+  transition: all 200ms ease;
+  border: 2px solid transparent;
+  --button-hover: var(--primary);
+}
+
+.ui-button.round {
+  aspect-ratio: 1 / 1;
+}
+
+.ui-button.fill {
+  flex: 1;
+}
+
+.ui-button.close {
+  --button-hover: red;
+}
+
+.ui-button:not(.no-effects):hover {
+  translate: -2px -2px;
+  box-shadow: 1px 1px 1px var(--button-primary);
+  border-color: var(--button-primary);
+  background-color: var(--button-hover);
+}
+
+.ui-button:not(.no-effects):active {
+  translate: 0px 0px;
+  background-color: var(--button-primary);
+  color: var(--background);
+}
+
+.ui-button.with-text {
+  padding: 1rem 1.5rem 1rem 1rem;
+}

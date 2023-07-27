@@ -4,7 +4,8 @@ import express, { Request, Response } from 'express';
 import { createServer } from 'http';
 import path from 'path';
 import { Server } from 'socket.io';
-import { handleDisconnect } from './websockets/handlers';
+import { JoinGameEvent } from './websockets/events';
+import { handleCreateGame, handleDisconnect, handleJoinGame } from './websockets/handlers';
 
 const env = process.env.NODE_ENV;
 
@@ -22,6 +23,8 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log('a user connected');
   socket.on('disconnect', handleDisconnect);
+  socket.on('createGame', () => handleCreateGame(socket));
+  socket.on('joinGame', (event: JoinGameEvent) => handleJoinGame(io, socket, event.roomId));
 });
 
 // parse application/json

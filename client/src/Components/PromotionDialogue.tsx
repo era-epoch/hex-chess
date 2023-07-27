@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { executePromotePiece } from '../State/Slices/gameSlice';
 import { RootState } from '../State/rootReducer';
-import { PieceType } from '../types';
+import { PieceType, ZIndices } from '../types';
 
 interface Props {}
 
@@ -37,7 +37,7 @@ const PromotionDialogue = (props: Props): JSX.Element => {
     <div
       className={`dialogue ${fadingIn ? 'fade-in' : ''} ${hiding ? 'fade-out' : ''} ${shown ? '' : 'nodisplay'}`}
       id="promotion-dialogue"
-      style={{ '--fade-duration': `${fadeOutDuration}ms` } as React.CSSProperties}
+      style={{ '--fade-duration': `${fadeOutDuration}ms`, zIndex: `${ZIndices.Dialogues + 1}` } as React.CSSProperties}
     >
       <div className="dialogue-internal">
         <div className="dialogue-content">

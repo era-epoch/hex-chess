@@ -93,4 +93,12 @@ export enum ZIndices {
 export enum Dialogue {
   none,
   promotion,
+  CreateGame,
+  JoinGame,
+}
+
+export enum PlayerSide {
+  white,
+  black,
+  random,
 }

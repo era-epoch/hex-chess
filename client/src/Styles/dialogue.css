@@ -38,6 +38,8 @@
 .dialogue-controls {
   display: flex;
   justify-content: center;
+  gap: 1rem;
+  width: 100%;
 }
 
 .fade-in {
@@ -95,18 +97,42 @@
   transition: all 200ms ease;
   border: 3px solid var(--contrast);
   box-shadow: none;
+  flex-shrink: 0;
 }
 
-.promo-option:hover {
+.promo-option.small {
+  transform: scale(0.75);
+}
+
+.promo-option.small:hover {
+  transform: scale(0.85);
+}
+
+.promo-option.inverted {
+  background-color: var(--contrast);
+  color: var(--background);
+}
+
+.promo-option:not(.no-effects):hover {
   background-color: var(--contrast);
   color: var(--background);
   transform: translate(-2px, -2px);
   box-shadow: 1px 1px 5px var(--contrast);
 }
 
-.promo-option:active {
+.promo-option:not(.no-effects):active {
   transform: translate(0px, 0px);
   box-shadow: none;
   background-color: var(--primary);
   border-color: var(--primary);
+}
+
+.join-game-content {
+  min-width: 350px;
+}
+
+.side-selection {
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
 }

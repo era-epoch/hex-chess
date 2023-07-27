@@ -14,10 +14,17 @@ body {
   --primary-light: #f0e68c;
   --primary-dark: #8b8000;
   --primary: yellow;
+  --button-primary: var(--contrast);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+input {
+  width: 100%;
+  font-size: 1rem;
+  padding: 1rem;
 }
 
 .nodisplay {
