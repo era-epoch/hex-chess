@@ -26,6 +26,7 @@ export enum PieceOwner {
 
 export type Piece = {
   id: string;
+  tag: string;
   type: PieceType;
   pos: GridCoordinate;
   axial: AxialCoordinate;
@@ -54,12 +55,21 @@ export enum MoveType {
   standard,
   capture,
   enPassantCapture,
+  promotion,
 }
 
 export type MoveInfo = {
   axial: AxialCoordinate;
   type: MoveType;
   source: Piece;
+  promoPiece?: Piece;
+};
+
+export type SerializedMove = {
+  axial: AxialCoordinate;
+  type: MoveType;
+  sourceTag: string;
+  promoPieceType?: PieceType;
 };
 
 export type MoveCalculationFunction = (state: GameState, piece: Piece) => MoveInfo[];
@@ -118,3 +128,9 @@ export type Alert = {
   severity: AlertSeverity;
   alive: boolean;
 };
+
+export enum NextTurnSource {
+  Reset,
+  Local,
+  Online,
+}

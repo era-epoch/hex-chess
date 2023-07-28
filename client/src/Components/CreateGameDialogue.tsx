@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setActiveDialogue, setPlayerName, setPlayerSide } from '../State/Slices/appSlice';
 import { RootState } from '../State/rootReducer';
 import { Dialogue, PlayerSide, ZIndices } from '../types';
-import { wsUpdateName, wsUpdateSide } from '../websocketMiddleware';
+import { wsStartGame, wsUpdateName, wsUpdateSide } from '../websocketMiddleware';
 
 interface Props {}
 
@@ -50,7 +50,15 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
     // TODO: Leave game lobby
   };
 
-  const startButtonOnClick = () => {};
+  const startButtonOnClick = () => {
+    let creatorSide = null;
+    if (playerSide === PlayerSide.random) {
+      creatorSide = Math.random() > 0.5 ? PlayerSide.black : PlayerSide.white;
+    } else {
+      creatorSide = playerSide;
+    }
+    dispatch(wsStartGame(onlineGameId!, playerId!, creatorSide));
+  };
 
   const handlePlayerSideChange = (side: PlayerSide) => {
     dispatch(setPlayerSide(side));

@@ -4,11 +4,19 @@ import express, { Request, Response } from 'express';
 import { createServer } from 'http';
 import path from 'path';
 import { Server } from 'socket.io';
-import { JoinGameEvent, UpdatePlayerNameEvent, UpdatePlayerSideEvent } from './websockets/events';
+import {
+  JoinGameEvent,
+  SendMoveEvent,
+  StartGameEvent,
+  UpdatePlayerNameEvent,
+  UpdatePlayerSideEvent,
+} from './websockets/events';
 import {
   handleCreateGame,
   handleDisconnect,
   handleJoinGame,
+  handleSendMove,
+  handleStartGame,
   handleUpdatePlayerName,
   handleUpdatePlayerSide,
 } from './websockets/handlers';
@@ -33,6 +41,8 @@ io.on('connection', (socket) => {
   socket.on('joinGame', (event: JoinGameEvent) => handleJoinGame(io, socket, event));
   socket.on('updatePlayerName', (event: UpdatePlayerNameEvent) => handleUpdatePlayerName(socket, event));
   socket.on('updatePlayerSide', (event: UpdatePlayerSideEvent) => handleUpdatePlayerSide(socket, event));
+  socket.on('startGame', (event: StartGameEvent) => handleStartGame(socket, event));
+  socket.on('sendMove', (event: SendMoveEvent) => handleSendMove(socket, event));
 });
 
 // parse application/json

@@ -6,6 +6,7 @@ import GameCanvas from './Components/GameCanvas';
 import GameLobbyDialogue from './Components/GameLobbyDialogue';
 import JoinGameDialogue from './Components/JoinGameDialogue';
 import Menu from './Components/Menu';
+import OnlineMoveCoordinator from './Components/OnlineMoveCoordinator';
 import { resetBoard } from './State/Slices/gameSlice';
 import './Styles/alert.css';
 import './Styles/dialogue.css';
@@ -41,6 +42,7 @@ function App() {
       <JoinGameDialogue />
       <GameLobbyDialogue />
       <AlertBox />
+      <OnlineMoveCoordinator />
     </div>
   );
 }

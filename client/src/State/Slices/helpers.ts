@@ -5,6 +5,7 @@ import {
   GameOverState,
   GridCoordinate,
   MoveStatus,
+  NextTurnSource,
   Piece,
   PieceOwner,
   PieceType,
@@ -165,23 +166,25 @@ export const ResetGameBoard = (gameState: GameState) => {
     { col: 9, row: 8 },
   ];
 
+  let i = 0;
   for (const g of whitePawnsStartingCoordinates) {
-    newBoard[g.col][g.row].content = createPawn(g, PieceOwner.white);
+    newBoard[g.col][g.row].content = createPawn(g, PieceOwner.white, `P${i + 1}`);
     newBoard[g.col][g.row].statuses.push({ type: TileStatusType.whitePawnOrigin });
+    i++;
   }
 
-  newBoard[5][8].content = createBishop({ col: 5, row: 8 }, PieceOwner.white);
-  newBoard[5][9].content = createBishop({ col: 5, row: 9 }, PieceOwner.white);
-  newBoard[5][10].content = createBishop({ col: 5, row: 10 }, PieceOwner.white);
+  newBoard[5][8].content = createBishop({ col: 5, row: 8 }, PieceOwner.white, `B${3}`);
+  newBoard[5][9].content = createBishop({ col: 5, row: 9 }, PieceOwner.white, `B${1}`);
+  newBoard[5][10].content = createBishop({ col: 5, row: 10 }, PieceOwner.white, `B${2}`);
 
-  newBoard[2][9].content = createRook({ col: 2, row: 9 }, PieceOwner.white);
-  newBoard[8][9].content = createRook({ col: 8, row: 9 }, PieceOwner.white);
+  newBoard[2][9].content = createRook({ col: 2, row: 9 }, PieceOwner.white, `R1`);
+  newBoard[8][9].content = createRook({ col: 8, row: 9 }, PieceOwner.white, `R2`);
 
-  newBoard[3][9].content = createKnight({ col: 3, row: 9 }, PieceOwner.white);
-  newBoard[7][9].content = createKnight({ col: 7, row: 9 }, PieceOwner.white);
+  newBoard[3][9].content = createKnight({ col: 3, row: 9 }, PieceOwner.white, `N1`);
+  newBoard[7][9].content = createKnight({ col: 7, row: 9 }, PieceOwner.white, `N2`);
 
-  newBoard[4][10].content = createQueen({ col: 4, row: 10 }, PieceOwner.white);
-  newBoard[6][10].content = createKing({ col: 6, row: 10 }, PieceOwner.white);
+  newBoard[4][10].content = createQueen({ col: 4, row: 10 }, PieceOwner.white, `Q`);
+  newBoard[6][10].content = createKing({ col: 6, row: 10 }, PieceOwner.white, `K`);
 
   // Black piece setup
 
@@ -197,23 +200,25 @@ export const ResetGameBoard = (gameState: GameState) => {
     { col: 9, row: 2 },
   ];
 
+  i = 0;
   for (const g of blackPawnsStartingCoordinates) {
-    newBoard[g.col][g.row].content = createPawn(g, PieceOwner.black);
+    newBoard[g.col][g.row].content = createPawn(g, PieceOwner.black, `P${i + 1}`);
     newBoard[g.col][g.row].statuses.push({ type: TileStatusType.blackPawnOrigin });
+    i++;
   }
 
-  newBoard[5][0].content = createBishop({ col: 5, row: 0 }, PieceOwner.black);
-  newBoard[5][1].content = createBishop({ col: 5, row: 1 }, PieceOwner.black);
-  newBoard[5][2].content = createBishop({ col: 5, row: 2 }, PieceOwner.black);
+  newBoard[5][0].content = createBishop({ col: 5, row: 0 }, PieceOwner.black, `B${1}`);
+  newBoard[5][1].content = createBishop({ col: 5, row: 1 }, PieceOwner.black, `B${2}`);
+  newBoard[5][2].content = createBishop({ col: 5, row: 2 }, PieceOwner.black, `B${3}`);
 
-  newBoard[2][2].content = createRook({ col: 2, row: 2 }, PieceOwner.black);
-  newBoard[8][2].content = createRook({ col: 8, row: 2 }, PieceOwner.black);
+  newBoard[2][2].content = createRook({ col: 2, row: 2 }, PieceOwner.black, `R1`);
+  newBoard[8][2].content = createRook({ col: 8, row: 2 }, PieceOwner.black, `R2`);
 
-  newBoard[3][1].content = createKnight({ col: 3, row: 1 }, PieceOwner.black);
-  newBoard[7][1].content = createKnight({ col: 7, row: 1 }, PieceOwner.black);
+  newBoard[3][1].content = createKnight({ col: 3, row: 1 }, PieceOwner.black, `N1`);
+  newBoard[7][1].content = createKnight({ col: 7, row: 1 }, PieceOwner.black, `N2`);
 
-  newBoard[4][1].content = createQueen({ col: 4, row: 1 }, PieceOwner.black);
-  newBoard[6][1].content = createKing({ col: 6, row: 1 }, PieceOwner.black);
+  newBoard[4][1].content = createQueen({ col: 4, row: 1 }, PieceOwner.black, `Q`);
+  newBoard[6][1].content = createKing({ col: 6, row: 1 }, PieceOwner.black, `K`);
 
   gameState.board = newBoard;
 };
@@ -403,4 +408,29 @@ export const HandlePawnDoubleMove = (
       state.board[epPos.col][epPos.row].statuses.push({ type: enPassantStatus });
     }
   }
+};
+
+export const NextTurn = (state: GameState, source: NextTurnSource) => {
+  EndTurn(state);
+  StartTurn(state);
+  if (source === NextTurnSource.Local) {
+    if (state.localSide !== null) {
+      state.sendMoveFlag = true;
+    }
+  }
+};
+
+export const GetPieceByTag = (state: GameState, owner: PieceOwner, tag: string): Piece | null => {
+  for (let i = 0; i < state.board.length; i++) {
+    for (let j = 0; j < state.board[i].length; j++) {
+      if (
+        state.board[i][j].content !== null &&
+        state.board[i][j].content!.owner === owner &&
+        state.board[i][j].content!.tag === tag
+      ) {
+        return state.board[i][j].content;
+      }
+    }
+  }
+  return null;
 };

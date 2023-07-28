@@ -7,9 +7,10 @@ import { CalculateMovesFunctions, PieceToIcon } from './maps';
 
 export interface Bishop extends Piece {}
 
-export const createBishop = (pos: GridCoordinate, owner: PieceOwner): Bishop => {
+export const createBishop = (pos: GridCoordinate, owner: PieceOwner, tag: string): Bishop => {
   const Bishop: Bishop = {
     id: uuid(),
+    tag: tag,
     type: PieceType.bishop,
     pos: pos,
     axial: GridToAxial(pos),

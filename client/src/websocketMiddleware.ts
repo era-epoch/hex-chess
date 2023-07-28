@@ -4,11 +4,15 @@ import {
   ConnectEvent,
   GameCreatedEvent,
   GameJoinedEvent,
+  GameStartedEvent,
   JoinGameEvent,
   JoinGameFailedEvent,
   NewPlayerJoinedEvent,
   PlayerNameUpdatedEvent,
   PlayerSideUpdatedEvent,
+  ReceiveMoveEvent,
+  SendMoveEvent,
+  StartGameEvent,
   UpdatePlayerNameEvent,
   UpdatePlayerSideEvent,
 } from '../../websockets/events';
@@ -20,8 +24,9 @@ import {
   setOpponentName,
   setPlayerSide,
 } from './State/Slices/appSlice';
+import { recieveOnlineMove, resetBoard, setLocalSide } from './State/Slices/gameSlice';
 import { RootState } from './State/rootReducer';
-import { AlertSeverity, Dialogue, PlayerSide } from './types';
+import { AlertSeverity, Dialogue, PlayerSide, SerializedMove } from './types';
 import { createAlert } from './utility';
 
 export const wsConnect = (url: string) => ({ type: 'WS_CONNECT', url });
@@ -40,6 +45,13 @@ export const wsUpdateSide = (playerSide: PlayerSide, playerId: string, roomId: s
   playerId,
   roomId,
 });
+export const wsStartGame = (roomId: string, creatorId: string, creatorSide: PlayerSide) => ({
+  type: 'WS_START_GAME',
+  roomId,
+  creatorId,
+  creatorSide,
+});
+export const wsSendMove = (roomId: string, move: SerializedMove) => ({ type: 'WS_SEND_MOVE', roomId, move });
 
 const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
   let socket: Socket | null = null;
@@ -102,6 +114,26 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
         }
       }
     });
+
+    socket.on('gameStarted', (event: GameStartedEvent) => {
+      const state: RootState = api.getState();
+      api.dispatch(setActiveDialogue(Dialogue.none));
+      api.dispatch(pushAlert(createAlert('Game Started', AlertSeverity.success)));
+      api.dispatch(resetBoard());
+      if (event.creatorId === state.app.onlinePlayerId) {
+        api.dispatch(setLocalSide(event.creatorSide));
+      } else {
+        if (event.creatorSide === PlayerSide.black) {
+          api.dispatch(setLocalSide(PlayerSide.white));
+        } else {
+          api.dispatch(setLocalSide(PlayerSide.black));
+        }
+      }
+    });
+
+    socket.on('receiveMove', (event: ReceiveMoveEvent) => {
+      api.dispatch(recieveOnlineMove(event.move));
+    });
   };
 
   return (next: Dispatch<AnyAction>) => (action: any) => {
@@ -131,6 +163,15 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
       case 'WS_UPDATE_SIDE':
         if (socket === null) connect(action);
         if (socket !== null) socket.emit('updatePlayerSide', action as UpdatePlayerSideEvent);
+        break;
+      case 'WS_START_GAME':
+        if (socket === null) connect(action);
+        if (socket !== null) socket.emit('startGame', action as StartGameEvent);
+        break;
+      case 'WS_SEND_MOVE':
+        console.log('Sending Move');
+        if (socket === null) connect(action);
+        if (socket !== null) socket.emit('sendMove', action as SendMoveEvent);
         break;
       default:
         return next(action);

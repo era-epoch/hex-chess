@@ -3,11 +3,15 @@ import { Server, Socket } from 'socket.io';
 import {
   GameCreatedEvent,
   GameJoinedEvent,
+  GameStartedEvent,
   JoinGameEvent,
   JoinGameFailedEvent,
   NewPlayerJoinedEvent,
   PlayerNameUpdatedEvent,
   PlayerSideUpdatedEvent,
+  ReceiveMoveEvent,
+  SendMoveEvent,
+  StartGameEvent,
   UpdatePlayerNameEvent,
   UpdatePlayerSideEvent,
 } from './events';
@@ -62,4 +66,19 @@ export const handleUpdatePlayerSide = (socket: Socket, event: UpdatePlayerSideEv
     playerId: event.playerId,
     playerSide: event.playerSide,
   } as PlayerSideUpdatedEvent);
+};
+
+export const handleStartGame = (socket: Socket, event: StartGameEvent) => {
+  socket.to(event.roomId).emit('gameStarted', {
+    creatorSide: event.creatorSide,
+    creatorId: event.creatorId,
+  } as GameStartedEvent);
+  socket.emit('gameStarted', {
+    creatorSide: event.creatorSide,
+    creatorId: event.creatorId,
+  } as GameStartedEvent);
+};
+
+export const handleSendMove = (socket: Socket, event: SendMoveEvent) => {
+  socket.to(event.roomId).emit('receiveMove', { move: event.move } as ReceiveMoveEvent);
 };

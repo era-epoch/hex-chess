@@ -1,4 +1,4 @@
-import { PlayerSide } from '../client/src/types';
+import { PlayerSide, SerializedMove } from '../client/src/types';
 
 export interface ConnectEvent {
   url: string;
@@ -50,4 +50,24 @@ export interface UpdatePlayerSideEvent {
 export interface PlayerSideUpdatedEvent {
   playerId: string;
   playerSide: PlayerSide;
+}
+
+export interface StartGameEvent {
+  roomId: string;
+  creatorId: string;
+  creatorSide: PlayerSide;
+}
+
+export interface GameStartedEvent {
+  creatorId: string;
+  creatorSide: PlayerSide;
+}
+
+export interface SendMoveEvent {
+  roomId: string;
+  move: SerializedMove;
+}
+
+export interface ReceiveMoveEvent {
+  move: SerializedMove;
 }

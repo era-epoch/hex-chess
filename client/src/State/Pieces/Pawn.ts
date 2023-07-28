@@ -16,9 +16,10 @@ import { CalculateMovesFunctions, PieceToIcon } from './maps';
 
 export interface Pawn extends Piece {}
 
-export const createPawn = (pos: GridCoordinate, owner: PieceOwner): Pawn => {
+export const createPawn = (pos: GridCoordinate, owner: PieceOwner, tag: string): Pawn => {
   const pawn: Pawn = {
     id: uuid(),
+    tag: tag,
     type: PieceType.pawn,
     pos: pos,
     axial: GridToAxial(pos),

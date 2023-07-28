@@ -24,10 +24,10 @@ const Menu = (props: Props) => {
         Play Local Game
       </div>
       <div className="menu-op" onClick={onClickCreateGame}>
-        <div>Create Online Game</div> <div style={{ fontSize: '0.75rem' }}>(Under Construction)</div>
+        <div>Create Online Game</div>
       </div>
       <div className="menu-op" onClick={onClickJoinGame}>
-        <div>Join Online Game</div> <div style={{ fontSize: '0.75rem' }}>(Under Construction)</div>
+        <div>Join Online Game</div>
       </div>
     </div>
   );

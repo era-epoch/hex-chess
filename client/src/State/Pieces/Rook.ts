@@ -7,9 +7,10 @@ import { CalculateMovesFunctions, PieceToIcon } from './maps';
 
 export interface Rook extends Piece {}
 
-export const createRook = (pos: GridCoordinate, owner: PieceOwner): Rook => {
+export const createRook = (pos: GridCoordinate, owner: PieceOwner, tag: string): Rook => {
   const Rook: Rook = {
     id: uuid(),
+    tag: tag,
     type: PieceType.rook,
     pos: pos,
     axial: GridToAxial(pos),

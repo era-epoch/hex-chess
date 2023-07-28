@@ -4,9 +4,12 @@ import {
   GameOverState,
   MoveStatus,
   MoveType,
+  NextTurnSource,
   Piece,
   PieceOwner,
   PieceType,
+  PlayerSide,
+  SerializedMove,
   Tile,
   TileStatusType,
 } from '../../types';
@@ -19,12 +22,12 @@ import {
   CaptureContent,
   CheckForPawnPromotion,
   ClearMoveHighlights,
-  EndTurn,
   GetCurrentPlayer,
+  GetPieceByTag,
   GetTileAtAxial,
   HandlePawnDoubleMove,
+  NextTurn,
   ResetGameBoard,
-  StartTurn,
   createTile,
 } from './helpers';
 
@@ -35,6 +38,10 @@ export interface GameState {
   turn: number;
   pawnPromotionFlag: boolean;
   promotionTile: Tile | null;
+  promotionCount: number;
+  localSide: PlayerSide | null;
+  lastMove: SerializedMove | null;
+  sendMoveFlag: boolean;
 }
 
 export const emptyBoard: Tile[][] = [];
@@ -53,6 +60,10 @@ const initialGameState: GameState = {
   turn: 0,
   pawnPromotionFlag: false,
   promotionTile: null,
+  promotionCount: 0,
+  localSide: null,
+  lastMove: null,
+  sendMoveFlag: false,
 };
 
 const gameSlice = createSlice({
@@ -63,8 +74,10 @@ const gameSlice = createSlice({
       console.log('Resetting Board');
       state.turn = 0;
       ResetGameBoard(state);
-      EndTurn(state);
-      StartTurn(state);
+      NextTurn(state, NextTurnSource.Reset);
+    },
+    setLocalSide: (state: GameState, action: PayloadAction<PlayerSide>) => {
+      state.localSide = action.payload;
     },
     highlightMoves: (state: GameState, action: PayloadAction<Piece>) => {
       ClearMoveHighlights(state);
@@ -114,6 +127,10 @@ const gameSlice = createSlice({
       if (mover.owner === PieceOwner.black && state.turn % 2 === 1) return;
       if (mover.owner === PieceOwner.white && state.turn % 2 === 0) return;
 
+      // Make sure the local player controls the selected piece
+      if (mover.owner === PieceOwner.black && state.localSide === PlayerSide.white) return;
+      if (mover.owner === PieceOwner.white && state.localSide === PlayerSide.black) return;
+
       const targetTile = GetTileAtAxial(state, action.payload);
       if (targetTile === undefined) return;
       if (
@@ -161,14 +178,20 @@ const gameSlice = createSlice({
         mover.pos = targetTile.pos;
         mover.axial = targetTile.axial;
 
+        // Save the move for serialization
+        state.lastMove = {
+          axial: moveStatus.move.axial,
+          type: moveStatus.move.type,
+          sourceTag: moveStatus.move.source.tag,
+        };
+
         HandlePawnDoubleMove(state, mover, targetTile, originAxial);
 
         if (CheckForPawnPromotion(state, mover, targetTile)) {
           state.pawnPromotionFlag = true;
           state.promotionTile = targetTile;
         } else {
-          EndTurn(state);
-          StartTurn(state);
+          NextTurn(state, NextTurnSource.Local);
         }
       }
     },
@@ -178,26 +201,99 @@ const gameSlice = createSlice({
       let newPiece: Piece;
       switch (action.payload) {
         case PieceType.bishop:
-          newPiece = createBishop(promoPos, promoPlayer);
+          newPiece = createBishop(promoPos, promoPlayer, `B*${state.promotionCount + 1}`);
           break;
         case PieceType.knight:
-          newPiece = createKnight(promoPos, promoPlayer);
+          newPiece = createKnight(promoPos, promoPlayer, `N*${state.promotionCount + 1}`);
           break;
         case PieceType.rook:
-          newPiece = createRook(promoPos, promoPlayer);
+          newPiece = createRook(promoPos, promoPlayer, `R*${state.promotionCount + 1}`);
           break;
         default:
-          newPiece = createQueen(promoPos, promoPlayer);
+          newPiece = createQueen(promoPos, promoPlayer, `Q*${state.promotionCount + 1}`);
           break;
       }
+
       state.board[promoPos.col][promoPos.row].content = newPiece;
 
       state.pawnPromotionFlag = false;
       state.promotionTile = null;
+      state.promotionCount++;
+
+      state.lastMove!.promoPieceType = action.payload;
+      state.lastMove!.type = MoveType.promotion;
 
       // And now we end the turn
-      EndTurn(state);
-      StartTurn(state);
+      NextTurn(state, NextTurnSource.Local);
+    },
+    setSendMoveFlag: (state: GameState, action: PayloadAction<boolean>) => {
+      state.sendMoveFlag = action.payload;
+    },
+    recieveOnlineMove: (state: GameState, action: PayloadAction<SerializedMove>) => {
+      let opponent = state.localSide === PlayerSide.black ? PieceOwner.white : PieceOwner.black;
+      const targetTile = GetTileAtAxial(state, action.payload.axial);
+      if (targetTile === undefined) {
+        console.error('Target tile not found');
+        return;
+      }
+      const mover = GetPieceByTag(state, opponent, action.payload.sourceTag);
+      if (mover === null) {
+        console.error('Piece not found');
+        return;
+      }
+
+      // MOVE! (TODO: use one helper function for both local and online moves)
+      CaptureContent(state, targetTile);
+
+      // En-passant capturing
+      if (action.payload.type === MoveType.enPassantCapture) {
+        if (mover.owner === PieceOwner.black) {
+          const epAxial: AxialCoordinate = { q: targetTile.axial.q, r: targetTile.axial.r - 1 };
+          const epPos = AxialToGrid(epAxial);
+          const enPassantTile = state.board[epPos.col][epPos.row];
+          CaptureContent(state, enPassantTile);
+        } else {
+          const epAxial: AxialCoordinate = { q: targetTile.axial.q, r: targetTile.axial.r + 1 };
+          const epPos = AxialToGrid(epAxial);
+          const enPassantTile = state.board[epPos.col][epPos.row];
+          CaptureContent(state, enPassantTile);
+        }
+      }
+
+      // Lift-off
+      const originAxial: AxialCoordinate = { q: mover.axial.q, r: mover.axial.r };
+      state.board[mover.pos.col][mover.pos.row].content = null;
+
+      // Touch-down
+      targetTile.content = mover;
+      mover.pos = targetTile.pos;
+      mover.axial = targetTile.axial;
+
+      HandlePawnDoubleMove(state, mover, targetTile, originAxial);
+
+      // Handle promotion
+      if (action.payload.type === MoveType.promotion) {
+        let newPiece: Piece;
+        switch (action.payload.promoPieceType) {
+          case PieceType.bishop:
+            newPiece = createBishop(targetTile.pos, opponent, `B*${state.promotionCount + 1}`);
+            break;
+          case PieceType.knight:
+            newPiece = createKnight(targetTile.pos, opponent, `N*${state.promotionCount + 1}`);
+            break;
+          case PieceType.rook:
+            newPiece = createRook(targetTile.pos, opponent, `R*${state.promotionCount + 1}`);
+            break;
+          default:
+            newPiece = createQueen(targetTile.pos, opponent, `Q*${state.promotionCount + 1}`);
+            break;
+        }
+        state.promotionCount++;
+        state.board[targetTile.pos.col][targetTile.pos.row].content = newPiece;
+      }
+
+      // And now we end the turn
+      NextTurn(state, NextTurnSource.Online);
     },
   },
 });
@@ -211,4 +307,7 @@ export const {
   unhighlightAllMoves,
   attemptMove,
   executePromotePiece,
+  setLocalSide,
+  setSendMoveFlag,
+  recieveOnlineMove,
 } = gameSlice.actions;

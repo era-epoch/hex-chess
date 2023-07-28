@@ -2,6 +2,7 @@ import CSS from 'csstype';
 import { useSelector } from 'react-redux';
 import { v4 as uuid } from 'uuid';
 import { RootState } from '../State/rootReducer';
+import { PlayerSide } from '../types';
 import PromotionDialogue from './PromotionDialogue';
 import RenderTile from './RenderTile';
 import TurnCounter from './TurnCounter';
@@ -10,6 +11,7 @@ interface Props {}
 
 const GameCanvas = (props: Props): JSX.Element => {
   const board = useSelector((state: RootState) => state.game.board);
+  const localSide = useSelector((state: RootState) => state.game.localSide);
   const tilePadding = 5;
 
   const limitingFactor = window.innerHeight > window.innerWidth ? window.innerWidth : window.innerHeight - 50;
@@ -25,20 +27,46 @@ const GameCanvas = (props: Props): JSX.Element => {
   for (const col of board) {
     tileStyles.push([]);
     for (const tile of col) {
-      const style: CSS.Properties | any = {
-        width: `${tileHexSize * 2}px`,
-        height: `${tileHexSize * Math.sqrt(3)}px`,
-        left: `${tile.pos.col * tileHexSize * 1.5 + tile.pos.col * tilePadding}px`,
-        top: `${tile.pos.row * tileHexSize * Math.sqrt(3) + tile.pos.row * tilePadding}px`,
-        '--hex-size': `${tileHexSize}px`,
-        '--hex-h': `${tileHexSize * Math.sqrt(3)}px`,
-        '--hex-colour': `${hexColour}`,
-      };
-      if (tile.pos.col % 2 === 1) {
-        style.top = `${
-          (tile.pos.row + 0.5) * tileHexSize * Math.sqrt(3) + tile.pos.row * tilePadding + tilePadding / 2
-        }px`;
+      let style: CSS.Properties | any;
+      if (localSide === PlayerSide.black) {
+        style = {
+          width: `${tileHexSize * 2}px`,
+          height: `${tileHexSize * Math.sqrt(3)}px`,
+          left: `${
+            (board.length - 1 - tile.pos.col) * tileHexSize * 1.5 + (board.length - 1 - tile.pos.col) * tilePadding
+          }px`,
+          top: `${
+            (board[0].length - tile.pos.row) * tileHexSize * Math.sqrt(3) +
+            (board[0].length + 0.5 - tile.pos.row) * tilePadding
+          }px`,
+          '--hex-size': `${tileHexSize}px`,
+          '--hex-h': `${tileHexSize * Math.sqrt(3)}px`,
+          '--hex-colour': `${hexColour}`,
+        };
+        if (tile.pos.col % 2 === 1) {
+          style.top = `${
+            (board[0].length - tile.pos.row - 0.5) * tileHexSize * Math.sqrt(3) +
+            (board[0].length - tile.pos.row - 0.5) * tilePadding +
+            tilePadding / 2
+          }px`;
+        }
+      } else {
+        style = {
+          width: `${tileHexSize * 2}px`,
+          height: `${tileHexSize * Math.sqrt(3)}px`,
+          left: `${tile.pos.col * tileHexSize * 1.5 + tile.pos.col * tilePadding}px`,
+          top: `${tile.pos.row * tileHexSize * Math.sqrt(3) + tile.pos.row * tilePadding}px`,
+          '--hex-size': `${tileHexSize}px`,
+          '--hex-h': `${tileHexSize * Math.sqrt(3)}px`,
+          '--hex-colour': `${hexColour}`,
+        };
+        if (tile.pos.col % 2 === 1) {
+          style.top = `${
+            (tile.pos.row + 0.5) * tileHexSize * Math.sqrt(3) + tile.pos.row * tilePadding + tilePadding / 2
+          }px`;
+        }
       }
+
       tileStyles[tile.pos.col].push(style);
     }
   }

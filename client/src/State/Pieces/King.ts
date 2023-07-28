@@ -16,9 +16,10 @@ import { CalculateMovesFunctions, PieceToIcon } from './maps';
 
 export interface King extends Piece {}
 
-export const createKing = (pos: GridCoordinate, owner: PieceOwner): King => {
+export const createKing = (pos: GridCoordinate, owner: PieceOwner, tag: string): King => {
   const King: King = {
     id: uuid(),
+    tag: tag,
     type: PieceType.king,
     pos: pos,
     axial: GridToAxial(pos),
