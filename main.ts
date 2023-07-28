@@ -4,8 +4,14 @@ import express, { Request, Response } from 'express';
 import { createServer } from 'http';
 import path from 'path';
 import { Server } from 'socket.io';
-import { JoinGameEvent } from './websockets/events';
-import { handleCreateGame, handleDisconnect, handleJoinGame } from './websockets/handlers';
+import { JoinGameEvent, UpdatePlayerNameEvent, UpdatePlayerSideEvent } from './websockets/events';
+import {
+  handleCreateGame,
+  handleDisconnect,
+  handleJoinGame,
+  handleUpdatePlayerName,
+  handleUpdatePlayerSide,
+} from './websockets/handlers';
 
 const env = process.env.NODE_ENV;
 
@@ -25,6 +31,8 @@ io.on('connection', (socket) => {
   socket.on('disconnect', handleDisconnect);
   socket.on('createGame', () => handleCreateGame(socket));
   socket.on('joinGame', (event: JoinGameEvent) => handleJoinGame(io, socket, event));
+  socket.on('updatePlayerName', (event: UpdatePlayerNameEvent) => handleUpdatePlayerName(socket, event));
+  socket.on('updatePlayerSide', (event: UpdatePlayerSideEvent) => handleUpdatePlayerSide(socket, event));
 });
 
 // parse application/json

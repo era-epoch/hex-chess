@@ -1,6 +1,16 @@
 import crypto from 'crypto';
 import { Server, Socket } from 'socket.io';
-import { GameCreatedEvent, GameJoinedEvent, JoinGameEvent, JoinGameFailedEvent, NewPlayerJoinedEvent } from './events';
+import {
+  GameCreatedEvent,
+  GameJoinedEvent,
+  JoinGameEvent,
+  JoinGameFailedEvent,
+  NewPlayerJoinedEvent,
+  PlayerNameUpdatedEvent,
+  PlayerSideUpdatedEvent,
+  UpdatePlayerNameEvent,
+  UpdatePlayerSideEvent,
+} from './events';
 import { RoomExists } from './helpers';
 
 export const handleDisconnect = () => {
@@ -38,4 +48,18 @@ export const handleJoinGame = (io: Server, socket: Socket, event: JoinGameEvent)
   } else {
     socket.emit('joinGameFailed', { reason: 'Room not found' } as JoinGameFailedEvent);
   }
+};
+
+export const handleUpdatePlayerName = (socket: Socket, event: UpdatePlayerNameEvent) => {
+  socket.to(event.roomId).emit('playerNameUpdated', {
+    playerId: event.playerId,
+    playerName: event.playerName,
+  } as PlayerNameUpdatedEvent);
+};
+
+export const handleUpdatePlayerSide = (socket: Socket, event: UpdatePlayerSideEvent) => {
+  socket.to(event.roomId).emit('playerSideUpdated', {
+    playerId: event.playerId,
+    playerSide: event.playerSide,
+  } as PlayerSideUpdatedEvent);
 };

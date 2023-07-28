@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setActiveDialogue, setPlayerName, setPlayerSide } from '../State/Slices/appSlice';
 import { RootState } from '../State/rootReducer';
 import { Dialogue, PlayerSide, ZIndices } from '../types';
+import { wsUpdateName, wsUpdateSide } from '../websocketMiddleware';
 
 interface Props {}
 
@@ -14,7 +15,9 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
   const activeDialogue = useSelector((state: RootState) => state.app.activeDialogue);
   const onlineGameId = useSelector((state: RootState) => state.app.onlineGameId);
   const playerName = useSelector((state: RootState) => state.app.playerName);
+  const playerId = useSelector((state: RootState) => state.app.onlinePlayerId);
   const playerSide = useSelector((state: RootState) => state.app.playerSide);
+  const opponentName = useSelector((state: RootState) => state.app.opponentName);
 
   // Transition state
   const [shown, setShown] = useState(false);
@@ -27,7 +30,7 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
   }
 
   useEffect(() => {
-    if (activeDialogue === Dialogue.GameLobby) {
+    if (activeDialogue === Dialogue.CreateGame) {
       setShown(true);
       hasShown.current = true;
     } else if (!hasShown.current) {
@@ -44,16 +47,23 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
 
   const closeButtonOnClick = () => {
     dispatch(setActiveDialogue(Dialogue.none));
+    // TODO: Leave game lobby
   };
 
   const startButtonOnClick = () => {};
 
   const handlePlayerSideChange = (side: PlayerSide) => {
     dispatch(setPlayerSide(side));
+    if (onlineGameId !== null) {
+      dispatch(wsUpdateSide(side, playerId!, onlineGameId));
+    }
   };
 
   const handlePlayerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setPlayerName(event.target.value));
+    if (onlineGameId !== null) {
+      dispatch(wsUpdateName(event.target.value, playerId!, onlineGameId));
+    }
   };
 
   return (
@@ -76,9 +86,15 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
           <div className="dialogue-section">
             <b>Your Opponent</b>
           </div>
-          <div className="dialogue-section">Waiting for player to join ...</div>
           <div className="dialogue-section">
-            <b>Your side</b>
+            {opponentName === null ? (
+              <div className="waiting-for-player">Waiting for player to join ...</div>
+            ) : (
+              <div className="player-name">{opponentName}</div>
+            )}
+          </div>
+          <div className="dialogue-section">
+            <b>Your Side</b>
           </div>
           <div className="dialogue-section side-selection">
             <div

@@ -1,3 +1,5 @@
+import { PlayerSide } from '../client/src/types';
+
 export interface ConnectEvent {
   url: string;
 }
@@ -26,4 +28,26 @@ export interface GameCreatedEvent {
 export interface NewPlayerJoinedEvent {
   playerId: string;
   playerName: string;
+}
+
+export interface UpdatePlayerNameEvent {
+  roomId: string;
+  playerId: string;
+  playerName: string;
+}
+
+export interface PlayerNameUpdatedEvent {
+  playerId: string;
+  playerName: string;
+}
+
+export interface UpdatePlayerSideEvent {
+  roomId: string;
+  playerId: string;
+  playerSide: PlayerSide;
+}
+
+export interface PlayerSideUpdatedEvent {
+  playerId: string;
+  playerSide: PlayerSide;
 }

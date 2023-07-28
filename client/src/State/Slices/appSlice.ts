@@ -8,6 +8,7 @@ export interface AppState {
   onlinePlayerId: string | null;
   playerName: string;
   playerSide: PlayerSide;
+  opponentName: string | null;
   alerts: Alert[];
 }
 
@@ -17,6 +18,7 @@ const initialAppState: AppState = {
   onlineGameId: null,
   onlinePlayerId: null,
   playerName: 'Player' + Math.random().toString().slice(-4, -1),
+  opponentName: null,
   playerSide: PlayerSide.random,
   alerts: [],
 };
@@ -55,6 +57,9 @@ const appSlice = createSlice({
     removeAlertByID: (state: AppState, action: PayloadAction<string>) => {
       state.alerts = state.alerts.filter((alert) => alert.id !== action.payload);
     },
+    setOpponentName: (state: AppState, action: PayloadAction<string>) => {
+      state.opponentName = action.payload;
+    },
   },
 });
 
@@ -69,4 +74,5 @@ export const {
   killAlertByID,
   setPlayerName,
   setPlayerSide,
+  setOpponentName,
 } = appSlice.actions;

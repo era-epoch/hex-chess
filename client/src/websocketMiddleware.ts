@@ -7,15 +7,39 @@ import {
   JoinGameEvent,
   JoinGameFailedEvent,
   NewPlayerJoinedEvent,
+  PlayerNameUpdatedEvent,
+  PlayerSideUpdatedEvent,
+  UpdatePlayerNameEvent,
+  UpdatePlayerSideEvent,
 } from '../../websockets/events';
-import { pushAlert, setActiveDialogue, setOnlineGameId, setOnlinePlayerId } from './State/Slices/appSlice';
-import { AlertSeverity, Dialogue } from './types';
+import {
+  pushAlert,
+  setActiveDialogue,
+  setOnlineGameId,
+  setOnlinePlayerId,
+  setOpponentName,
+  setPlayerSide,
+} from './State/Slices/appSlice';
+import { RootState } from './State/rootReducer';
+import { AlertSeverity, Dialogue, PlayerSide } from './types';
 import { createAlert } from './utility';
 
 export const wsConnect = (url: string) => ({ type: 'WS_CONNECT', url });
 export const wsDisconnect = (url: string) => ({ type: 'WS_DISCONNECT', url });
 export const wsCreateGame = () => ({ type: 'WS_CREATE_GAME' });
 export const wsJoinGame = (roomId: string, playerName: string) => ({ type: 'WS_JOIN_GAME', roomId, playerName });
+export const wsUpdateName = (playerName: string, playerId: string, roomId: string) => ({
+  type: 'WS_UPDATE_NAME',
+  playerName,
+  playerId,
+  roomId,
+});
+export const wsUpdateSide = (playerSide: PlayerSide, playerId: string, roomId: string) => ({
+  type: 'WS_UPDATE_SIDE',
+  playerSide,
+  playerId,
+  roomId,
+});
 
 const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
   let socket: Socket | null = null;
@@ -26,7 +50,6 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
     }
     let connectAction = action as ConnectEvent;
     // Set up socket
-    console.log(connectAction);
     socket = io(connectAction.url);
     socket.connect();
     /* Socket events */
@@ -48,9 +71,36 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
     });
 
     socket.on('newPlayerJoined', (event: NewPlayerJoinedEvent) => {
-      api.dispatch(
-        pushAlert(createAlert(`New player ${event.playerName} has joined your game`, AlertSeverity.success)),
-      );
+      api.dispatch(pushAlert(createAlert(`${event.playerName} has joined your game`, AlertSeverity.success)));
+      api.dispatch(setOpponentName(event.playerName));
+      // Push the current state of things to the newly-joined player
+      const state: RootState = api.getState();
+      api.dispatch(wsUpdateName(state.app.playerName, state.app.onlinePlayerId!, state.app.onlineGameId!));
+      api.dispatch(wsUpdateSide(state.app.playerSide, state.app.onlinePlayerId!, state.app.onlineGameId!));
+    });
+
+    socket.on('playerNameUpdated', (event: PlayerNameUpdatedEvent) => {
+      const state: RootState = api.getState();
+      if (event.playerId !== state.app.onlinePlayerId) {
+        api.dispatch(setOpponentName(event.playerName));
+      }
+    });
+
+    socket.on('playerSideUpdated', (event: PlayerSideUpdatedEvent) => {
+      const state: RootState = api.getState();
+      if (event.playerId !== state.app.onlinePlayerId) {
+        switch (event.playerSide) {
+          case PlayerSide.black:
+            api.dispatch(setPlayerSide(PlayerSide.white));
+            break;
+          case PlayerSide.white:
+            api.dispatch(setPlayerSide(PlayerSide.black));
+            break;
+          case PlayerSide.random:
+            api.dispatch(setPlayerSide(PlayerSide.random));
+            break;
+        }
+      }
     });
   };
 
@@ -73,6 +123,14 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
         console.log('Attempting join:', action);
         if (socket === null) connect(action);
         if (socket !== null) socket.emit('joinGame', action as JoinGameEvent);
+        break;
+      case 'WS_UPDATE_NAME':
+        if (socket === null) connect(action);
+        if (socket !== null) socket.emit('updatePlayerName', action as UpdatePlayerNameEvent);
+        break;
+      case 'WS_UPDATE_SIDE':
+        if (socket === null) connect(action);
+        if (socket !== null) socket.emit('updatePlayerSide', action as UpdatePlayerSideEvent);
         break;
       default:
         return next(action);

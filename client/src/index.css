@@ -31,6 +31,11 @@ input {
   display: none !important;
 }
 
+.no-interact,
+.no-interact > * {
+  cursor: not-allowed;
+}
+
 .App {
   width: 100vw;
   height: 100vh;
