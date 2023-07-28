@@ -24,7 +24,7 @@ io.on('connection', (socket) => {
   console.log('a user connected');
   socket.on('disconnect', handleDisconnect);
   socket.on('createGame', () => handleCreateGame(socket));
-  socket.on('joinGame', (event: JoinGameEvent) => handleJoinGame(io, socket, event.roomId));
+  socket.on('joinGame', (event: JoinGameEvent) => handleJoinGame(io, socket, event));
 });
 
 // parse application/json

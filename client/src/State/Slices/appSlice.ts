@@ -1,11 +1,14 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { Dialogue } from '../../types';
+import { Alert, Dialogue, PlayerSide } from '../../types';
 
 export interface AppState {
   activeGame: boolean;
   activeDialogue: Dialogue;
   onlineGameId: string | null;
   onlinePlayerId: string | null;
+  playerName: string;
+  playerSide: PlayerSide;
+  alerts: Alert[];
 }
 
 const initialAppState: AppState = {
@@ -13,6 +16,9 @@ const initialAppState: AppState = {
   activeDialogue: Dialogue.none,
   onlineGameId: null,
   onlinePlayerId: null,
+  playerName: 'Player' + Math.random().toString().slice(-4, -1),
+  playerSide: PlayerSide.random,
+  alerts: [],
 };
 
 const appSlice = createSlice({
@@ -31,8 +37,36 @@ const appSlice = createSlice({
     setOnlinePlayerId: (state: AppState, action: PayloadAction<string>) => {
       state.onlinePlayerId = action.payload;
     },
+    setPlayerName: (state: AppState, action: PayloadAction<string>) => {
+      state.playerName = action.payload;
+    },
+    setPlayerSide: (state: AppState, action: PayloadAction<PlayerSide>) => {
+      state.playerSide = action.payload;
+    },
+    pushAlert: (state: AppState, action: PayloadAction<Alert>) => {
+      state.alerts.push(action.payload);
+    },
+    killAlertByID: (state: AppState, action: PayloadAction<string>) => {
+      const alert = state.alerts.find((a) => a.id === action.payload);
+      if (alert !== undefined) {
+        alert.alive = false;
+      }
+    },
+    removeAlertByID: (state: AppState, action: PayloadAction<string>) => {
+      state.alerts = state.alerts.filter((alert) => alert.id !== action.payload);
+    },
   },
 });
 
 export default appSlice.reducer;
-export const { setActiveGame, setActiveDialogue, setOnlineGameId, setOnlinePlayerId } = appSlice.actions;
+export const {
+  setActiveGame,
+  setActiveDialogue,
+  setOnlineGameId,
+  setOnlinePlayerId,
+  pushAlert,
+  removeAlertByID,
+  killAlertByID,
+  setPlayerName,
+  setPlayerSide,
+} = appSlice.actions;

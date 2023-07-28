@@ -1,9 +1,9 @@
 import { faChessKing } from '@fortawesome/free-regular-svg-icons';
 import { faDice, faPlay, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setActiveDialogue } from '../State/Slices/appSlice';
+import { setActiveDialogue, setPlayerName, setPlayerSide } from '../State/Slices/appSlice';
 import { RootState } from '../State/rootReducer';
 import { Dialogue, PlayerSide, ZIndices } from '../types';
 
@@ -13,32 +13,47 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
   const dispatch = useDispatch();
   const activeDialogue = useSelector((state: RootState) => state.app.activeDialogue);
   const onlineGameId = useSelector((state: RootState) => state.app.onlineGameId);
-
-  const [playerName, setPlayerName] = useState('Player' + Math.random().toString().slice(-4, -1));
-  const [playerSide, setPlayerSide] = useState(PlayerSide.random);
+  const playerName = useSelector((state: RootState) => state.app.playerName);
+  const playerSide = useSelector((state: RootState) => state.app.playerSide);
 
   // Transition state
-  const shown = activeDialogue === Dialogue.CreateGame;
-  const fadeOutDuration = 1000;
+  const [shown, setShown] = useState(false);
   const [hiding, setHiding] = useState(false);
+  const fadeOutDuration = 1000;
   const fadingIn = useRef(false);
+  const hasShown = useRef(false);
   if (shown && !fadingIn.current) {
     fadingIn.current = true;
   }
 
+  useEffect(() => {
+    if (activeDialogue === Dialogue.GameLobby) {
+      setShown(true);
+      hasShown.current = true;
+    } else if (!hasShown.current) {
+      return;
+    } else {
+      setHiding(true);
+      setTimeout(() => {
+        setShown(false);
+        setHiding(false);
+        fadingIn.current = false;
+      }, fadeOutDuration);
+    }
+  }, [activeDialogue]);
+
   const closeButtonOnClick = () => {
-    setHiding(true);
-    setTimeout(() => {
-      dispatch(setActiveDialogue(Dialogue.none));
-      setHiding(false);
-      fadingIn.current = false;
-    }, fadeOutDuration);
+    dispatch(setActiveDialogue(Dialogue.none));
   };
 
   const startButtonOnClick = () => {};
 
+  const handlePlayerSideChange = (side: PlayerSide) => {
+    dispatch(setPlayerSide(side));
+  };
+
   const handlePlayerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPlayerName(event.target.value);
+    dispatch(setPlayerName(event.target.value));
   };
 
   return (
@@ -69,7 +84,7 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
             <div
               className={`promo-option no-effects ${playerSide === PlayerSide.white ? '' : 'small'}`}
               onClick={() => {
-                setPlayerSide(PlayerSide.white);
+                handlePlayerSideChange(PlayerSide.white);
               }}
             >
               <FontAwesomeIcon icon={faChessKing} />
@@ -77,7 +92,7 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
             <div
               className={`promo-option no-effects inverted ${playerSide === PlayerSide.black ? '' : 'small'}`}
               onClick={() => {
-                setPlayerSide(PlayerSide.black);
+                handlePlayerSideChange(PlayerSide.black);
               }}
             >
               <FontAwesomeIcon icon={faChessKing} />
@@ -85,7 +100,7 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
             <div
               className={`promo-option no-effects ${playerSide === PlayerSide.random ? '' : 'small'}`}
               onClick={() => {
-                setPlayerSide(PlayerSide.random);
+                handlePlayerSideChange(PlayerSide.random);
               }}
             >
               <FontAwesomeIcon icon={faDice} />
@@ -96,8 +111,9 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
               <div className="ui-button close fill" onClick={closeButtonOnClick}>
                 <FontAwesomeIcon icon={faXmark} />
               </div>
-              <div className="ui-button fill" onClick={startButtonOnClick}>
+              <div className="ui-button fill with-text" onClick={startButtonOnClick}>
                 <FontAwesomeIcon icon={faPlay} />
+                Play
               </div>
             </div>
           </div>

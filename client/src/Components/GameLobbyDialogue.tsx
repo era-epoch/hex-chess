@@ -1,20 +1,20 @@
-import { faRightToBracket, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faChessKing } from '@fortawesome/free-regular-svg-icons';
+import { faDice, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveDialogue, setPlayerName } from '../State/Slices/appSlice';
 import { RootState } from '../State/rootReducer';
-import { Dialogue, ZIndices } from '../types';
-import { wsJoinGame } from '../websocketMiddleware';
+import { Dialogue, PlayerSide, ZIndices } from '../types';
 
 interface Props {}
 
-const JoinGameDialogue = (props: Props): JSX.Element => {
+const GameLobbyDialogue = (props: Props): JSX.Element => {
   const dispatch = useDispatch();
   const activeDialogue = useSelector((state: RootState) => state.app.activeDialogue);
-  const [gameId, setGameId] = useState('');
-
+  const onlineGameId = useSelector((state: RootState) => state.app.onlineGameId);
   const playerName = useSelector((state: RootState) => state.app.playerName);
+  const playerSide = useSelector((state: RootState) => state.app.playerSide);
 
   // Transition state
   const [shown, setShown] = useState(false);
@@ -27,7 +27,7 @@ const JoinGameDialogue = (props: Props): JSX.Element => {
   }
 
   useEffect(() => {
-    if (activeDialogue === Dialogue.JoinGame) {
+    if (activeDialogue === Dialogue.CreateGame) {
       setShown(true);
       hasShown.current = true;
     } else if (!hasShown.current) {
@@ -46,14 +46,6 @@ const JoinGameDialogue = (props: Props): JSX.Element => {
     dispatch(setActiveDialogue(Dialogue.none));
   };
 
-  const handleGameIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setGameId(event.target.value);
-  };
-
-  const joinButtonOnClick = () => {
-    dispatch(wsJoinGame(gameId, playerName));
-  };
-
   const handlePlayerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setPlayerName(event.target.value));
   };
@@ -64,7 +56,11 @@ const JoinGameDialogue = (props: Props): JSX.Element => {
       style={{ '--fade-duration': `${fadeOutDuration}ms`, zIndex: `${ZIndices.Dialogues}` } as React.CSSProperties}
     >
       <div className="dialogue-internal">
-        <div className="dialogue-content join-game-content">
+        <div className="dialogue-content">
+          <div className="dialogue-section">
+            <b>Game ID</b>
+          </div>
+          <div className="dialogue-section">{onlineGameId}</div>
           <div className="dialogue-section">
             <b>Your Name</b>
           </div>
@@ -72,20 +68,27 @@ const JoinGameDialogue = (props: Props): JSX.Element => {
             <input type="text" value={playerName} onChange={handlePlayerNameChange} />
           </div>
           <div className="dialogue-section">
-            <b>Game ID</b>
+            <b>Your Opponent</b>
           </div>
+          <div className="dialogue-section">Waiting for player to join ...</div>
           <div className="dialogue-section">
-            <input type="text" value={gameId} onChange={handleGameIdChange} />
+            <b>Your side</b>
           </div>
-          <div className="dialogue-section"></div>
+          <div className="dialogue-section side-selection">
+            <div className={`promo-option no-effects ${playerSide === PlayerSide.white ? '' : 'small'}`}>
+              <FontAwesomeIcon icon={faChessKing} />
+            </div>
+            <div className={`promo-option no-effects inverted ${playerSide === PlayerSide.black ? '' : 'small'}`}>
+              <FontAwesomeIcon icon={faChessKing} />
+            </div>
+            <div className={`promo-option no-effects ${playerSide === PlayerSide.random ? '' : 'small'}`}>
+              <FontAwesomeIcon icon={faDice} />
+            </div>
+          </div>
           <div className="dialogue-section">
             <div className="dialogue-controls">
               <div className="ui-button close fill" onClick={closeButtonOnClick}>
                 <FontAwesomeIcon icon={faXmark} />
-              </div>
-              <div className="ui-button fill with-text" onClick={joinButtonOnClick}>
-                <FontAwesomeIcon icon={faRightToBracket} />
-                Join
               </div>
             </div>
           </div>
@@ -95,4 +98,4 @@ const JoinGameDialogue = (props: Props): JSX.Element => {
   );
 };
 
-export default JoinGameDialogue;
+export default GameLobbyDialogue;

@@ -88,6 +88,7 @@ export enum GameOverState {
 
 export enum ZIndices {
   Dialogues = 100,
+  Alerts = 1000,
 }
 
 export enum Dialogue {
@@ -95,6 +96,7 @@ export enum Dialogue {
   promotion,
   CreateGame,
   JoinGame,
+  GameLobby,
 }
 
 export enum PlayerSide {
@@ -102,3 +104,17 @@ export enum PlayerSide {
   black,
   random,
 }
+
+export enum AlertSeverity {
+  success = 'green',
+  warning = 'orange',
+  info = 'blue',
+  error = 'red',
+}
+
+export type Alert = {
+  id: string;
+  content: string;
+  severity: AlertSeverity;
+  alive: boolean;
+};
