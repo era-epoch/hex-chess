@@ -11,32 +11,16 @@ import { resetBoard } from './State/Slices/gameSlice';
 import './Styles/alert.css';
 import './Styles/dialogue.css';
 import './Styles/uibutton.css';
-import { IS_PROD } from './env';
 import { wsConnect, wsDisconnect } from './websocketMiddleware';
-
-let socketURL: string;
-if (IS_PROD) {
-  socketURL = `${window.location.hostname}:${8080}`;
-} else {
-  socketURL = `https://www.hex-chess.io:5000`;
-}
 
 function App() {
   const dispatch = useDispatch();
 
-  // const firstLoad = useRef(true);
-  // if (firstLoad.current) {
-  //   // This runs twice but I think only in dev mode(???)
-  //   dispatch(resetBoard());
-  //   firstLoad.current = false;
-  // }
-
   useEffect(() => {
-    console.log(socketURL);
     dispatch(resetBoard());
-    dispatch(wsConnect(socketURL));
+    dispatch(wsConnect());
     return () => {
-      dispatch(wsDisconnect(socketURL));
+      dispatch(wsDisconnect());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

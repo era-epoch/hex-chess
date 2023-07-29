@@ -1,7 +1,6 @@
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from '@reduxjs/toolkit';
 import { Socket, io } from 'socket.io-client';
 import {
-  ConnectEvent,
   GameCreatedEvent,
   GameJoinedEvent,
   GameStartedEvent,
@@ -26,11 +25,12 @@ import {
 } from './State/Slices/appSlice';
 import { recieveOnlineMove, resetBoard, setLocalSide } from './State/Slices/gameSlice';
 import { RootState } from './State/rootReducer';
+import { IS_PROD } from './env';
 import { AlertSeverity, Dialogue, PlayerSide, SerializedMove } from './types';
 import { createAlert } from './utility';
 
-export const wsConnect = (url: string) => ({ type: 'WS_CONNECT', url });
-export const wsDisconnect = (url: string) => ({ type: 'WS_DISCONNECT', url });
+export const wsConnect = () => ({ type: 'WS_CONNECT' });
+export const wsDisconnect = () => ({ type: 'WS_DISCONNECT' });
 export const wsCreateGame = () => ({ type: 'WS_CREATE_GAME' });
 export const wsJoinGame = (roomId: string, playerName: string) => ({ type: 'WS_JOIN_GAME', roomId, playerName });
 export const wsUpdateName = (playerName: string, playerId: string, roomId: string) => ({
@@ -60,11 +60,14 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
     if (socket !== null) {
       socket.close();
     }
-    let connectAction = action as ConnectEvent;
     // Set up socket
-    // socket = io(connectAction.url);
-    socket = io();
+    if (IS_PROD) {
+      socket = io();
+    } else {
+      socket = io('localhost:5000');
+    }
     socket.connect();
+
     /* Socket events */
     socket.on('gameCreated', (event: GameCreatedEvent) => {
       api.dispatch(setOnlineGameId(event.roomId));
