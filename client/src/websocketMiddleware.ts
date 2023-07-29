@@ -62,7 +62,8 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
     }
     let connectAction = action as ConnectEvent;
     // Set up socket
-    socket = io(connectAction.url);
+    // socket = io(connectAction.url);
+    socket = io();
     socket.connect();
     /* Socket events */
     socket.on('gameCreated', (event: GameCreatedEvent) => {
