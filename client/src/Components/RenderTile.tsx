@@ -130,6 +130,7 @@ const RenderTile = (props: Props): JSX.Element => {
           <div className="hex-mid"></div>
           <div className="hex-right"></div>
         </div>
+        {props.tile.playable ? <div className="hex-shadow"></div> : null}
         <div className="piece-container">
           {piece !== null ? (
             <div

@@ -10,6 +10,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   /* COLOURS */
   --background: #eee;
+  --background-dark: #4f4f4f;
   --contrast: #222;
   --offset: #aaa;
   --primary-light: #f0e68c;
@@ -45,6 +46,7 @@ input {
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: var(--background-dark);
   /* justify-content: center; */
 }
 
@@ -78,6 +80,11 @@ input {
   align-items: center;
   text-align: center;
   transition: all 200ms ease;
+  z-index: 1;
+}
+
+.hex > * {
+  z-index: 1;
 }
 
 .hex-left {
@@ -103,6 +110,17 @@ input {
   border-top: calc(var(--hex-h) / 2) solid transparent;
   border-bottom: calc(var(--hex-h) / 2) solid transparent;
   transition: inherit;
+}
+
+.hex-shadow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: calc(50% - 20px);
+  left: calc(50% - 20px);
+  box-shadow: 0px 0px 40px black;
+  z-index: 0;
 }
 
 .piece-container {
@@ -158,6 +176,7 @@ input {
   justify-content: center;
   align-items: center;
   color: var(--background);
+  box-shadow: 0px 0px 5px black;
 }
 
 .menu-op {
@@ -168,7 +187,7 @@ input {
   justify-content: center;
   align-items: center;
   padding: 0rem 1rem;
-  --element-border: 1px solid var(--background);
+  --element-border: 1px solid transparent;
   border-right: var(--element-border);
   transition: all 200ms ease;
 }
@@ -192,5 +211,6 @@ input {
   font-weight: bold;
   display: flex;
   flex-direction: column;
+  color: var(--background);
   /* padding: 1rem; */
 }

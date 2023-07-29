@@ -63,6 +63,7 @@
   padding: 0.5rem;
   gap: 0.5rem;
   width: 100%;
+  color: var(--background);
 }
 
 .log-source {
