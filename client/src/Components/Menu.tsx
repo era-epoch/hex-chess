@@ -35,10 +35,10 @@ const Menu = (props: Props) => {
       <div className="menu-op" onClick={onClickJoinGame}>
         <div>Join Online Game</div>
       </div>
-      <div className="menu-op" onClick={onClickSupport}>
+      <div className="menu-op small" onClick={onClickSupport}>
         <div>Support the Developer</div>
       </div>
-      <div className="menu-op" onClick={onClickBugs}>
+      <div className="menu-op small" onClick={onClickBugs}>
         <div>Bugs and Feature Requests</div>
       </div>
     </div>
