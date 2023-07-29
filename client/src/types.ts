@@ -1,12 +1,12 @@
 import { GameState } from './State/Slices/gameSlice';
 
 export enum PieceType {
-  pawn,
-  knight,
-  bishop,
-  rook,
-  queen,
-  king,
+  pawn = 'P',
+  knight = 'N',
+  bishop = 'B',
+  rook = 'R',
+  queen = 'Q',
+  king = 'K',
 }
 
 export type GridCoordinate = {
@@ -52,10 +52,10 @@ export type TileStatus = {
 };
 
 export enum MoveType {
-  standard,
-  capture,
-  enPassantCapture,
-  promotion,
+  standard = '',
+  capture = 'X',
+  enPassantCapture = 'x',
+  promotion = '^',
 }
 
 export type MoveInfo = {
@@ -134,3 +134,9 @@ export enum NextTurnSource {
   Local,
   Online,
 }
+
+export type LogItem = {
+  content: string;
+  timestamp: number;
+  source: string;
+};

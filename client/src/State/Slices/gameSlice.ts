@@ -41,6 +41,7 @@ export interface GameState {
   promotionCount: number;
   localSide: PlayerSide | null;
   lastMove: SerializedMove | null;
+  lastMoveString: string;
   sendMoveFlag: boolean;
 }
 
@@ -63,6 +64,7 @@ const initialGameState: GameState = {
   promotionCount: 0,
   localSide: null,
   lastMove: null,
+  lastMoveString: '',
   sendMoveFlag: false,
 };
 
@@ -271,6 +273,13 @@ const gameSlice = createSlice({
 
       HandlePawnDoubleMove(state, mover, targetTile, originAxial);
 
+      // Save the move for serialization
+      state.lastMove = {
+        axial: action.payload.axial,
+        type: action.payload.type,
+        sourceTag: action.payload.sourceTag,
+      };
+
       // Handle promotion
       if (action.payload.type === MoveType.promotion) {
         let newPiece: Piece;
@@ -290,6 +299,8 @@ const gameSlice = createSlice({
         }
         state.promotionCount++;
         state.board[targetTile.pos.col][targetTile.pos.row].content = newPiece;
+        state.lastMove!.promoPieceType = action.payload.promoPieceType;
+        state.lastMove!.type = MoveType.promotion;
       }
 
       // And now we end the turn

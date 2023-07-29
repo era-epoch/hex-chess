@@ -1,0 +1,75 @@
+.sidebar-container {
+  position: absolute;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  display: flex;
+  padding-right: 1rem;
+  pointer-events: none;
+}
+
+.sidebar {
+  pointer-events: all;
+  margin-top: var(--menu-height);
+  padding-bottom: 1rem;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.log-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: end;
+  font-size: 0.75rem;
+}
+
+.chat-input {
+  display: flex;
+}
+
+.chat-input input {
+  flex: 1;
+}
+
+.chat-enter {
+  width: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: var(--primary);
+  border-radius: 0px 4px 4px 0px;
+  transition: all 100ms ease;
+  font-size: 1rem;
+}
+
+.chat-enter svg {
+  transition: all 100ms ease;
+}
+
+.chat-enter:hover svg {
+  scale: 1.1;
+}
+
+.chat-enter:active {
+  font-size: 0.9rem;
+}
+
+.log-item {
+  display: flex;
+  padding: 0.5rem;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.log-source {
+  font-weight: bold;
+}
+
+.log-content {
+  flex: 1;
+  word-break: break-word;
+}

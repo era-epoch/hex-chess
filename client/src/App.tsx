@@ -4,9 +4,12 @@ import AlertBox from './Components/AlertBox';
 import CreateGameDialogue from './Components/CreateGameDialogue';
 import GameCanvas from './Components/GameCanvas';
 import GameLobbyDialogue from './Components/GameLobbyDialogue';
+import GameToAppCoordinator from './Components/GameToAppCoordinator';
 import JoinGameDialogue from './Components/JoinGameDialogue';
 import Menu from './Components/Menu';
 import OnlineMoveCoordinator from './Components/OnlineMoveCoordinator';
+import Sidebar from './Components/Sidebar';
+import { pushLogItem } from './State/Slices/appSlice';
 import { resetBoard } from './State/Slices/gameSlice';
 import './Styles/alert.css';
 import './Styles/dialogue.css';
@@ -17,7 +20,9 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // This runs twice but only in development (due to strict mode)
     dispatch(resetBoard());
+    dispatch(pushLogItem({ content: 'Welcome to Hex-Chess.io!', source: 'Game', timestamp: Date.now() }));
     dispatch(wsConnect());
     return () => {
       dispatch(wsDisconnect());
@@ -28,12 +33,14 @@ function App() {
   return (
     <div className="App">
       <Menu />
+      <Sidebar />
       <GameCanvas />
       <CreateGameDialogue />
       <JoinGameDialogue />
       <GameLobbyDialogue />
       <AlertBox />
       <OnlineMoveCoordinator />
+      <GameToAppCoordinator />
     </div>
   );
 }

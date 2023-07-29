@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { Alert, Dialogue, PlayerSide } from '../../types';
+import { Alert, Dialogue, LogItem, PlayerSide } from '../../types';
 
 export interface AppState {
   activeGame: boolean;
@@ -10,6 +10,7 @@ export interface AppState {
   playerSide: PlayerSide;
   opponentName: string | null;
   alerts: Alert[];
+  log: LogItem[];
 }
 
 const initialAppState: AppState = {
@@ -21,6 +22,7 @@ const initialAppState: AppState = {
   opponentName: null,
   playerSide: PlayerSide.random,
   alerts: [],
+  log: [],
 };
 
 const appSlice = createSlice({
@@ -60,6 +62,9 @@ const appSlice = createSlice({
     setOpponentName: (state: AppState, action: PayloadAction<string>) => {
       state.opponentName = action.payload;
     },
+    pushLogItem: (state: AppState, action: PayloadAction<LogItem>) => {
+      state.log.push(action.payload);
+    },
   },
 });
 
@@ -75,4 +80,5 @@ export const {
   setPlayerName,
   setPlayerSide,
   setOpponentName,
+  pushLogItem,
 } = appSlice.actions;

@@ -6,6 +6,7 @@ import path from 'path';
 import { Server } from 'socket.io';
 import {
   JoinGameEvent,
+  SendChatEvent,
   SendMoveEvent,
   StartGameEvent,
   UpdatePlayerNameEvent,
@@ -15,6 +16,7 @@ import {
   handleCreateGame,
   handleDisconnect,
   handleJoinGame,
+  handleSendChat,
   handleSendMove,
   handleStartGame,
   handleUpdatePlayerName,
@@ -43,6 +45,7 @@ io.on('connection', (socket) => {
   socket.on('updatePlayerSide', (event: UpdatePlayerSideEvent) => handleUpdatePlayerSide(socket, event));
   socket.on('startGame', (event: StartGameEvent) => handleStartGame(socket, event));
   socket.on('sendMove', (event: SendMoveEvent) => handleSendMove(socket, event));
+  socket.on('sendChat', (event: SendChatEvent) => handleSendChat(socket, event));
 });
 
 // parse application/json

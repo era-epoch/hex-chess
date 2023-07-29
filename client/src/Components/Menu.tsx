@@ -18,6 +18,9 @@ const Menu = (props: Props) => {
   const onClickJoinGame = () => {
     dispatch(setActiveDialogue(Dialogue.JoinGame));
   };
+  const onClickSupport = () => {
+    window.open('https://www.patreon.com/eracodes', '_blank');
+  };
   return (
     <div className="menu">
       <div className="menu-op" onClick={onClickPlayLocal}>
@@ -28,6 +31,9 @@ const Menu = (props: Props) => {
       </div>
       <div className="menu-op" onClick={onClickJoinGame}>
         <div>Join Online Game</div>
+      </div>
+      <div className="menu-op" onClick={onClickSupport}>
+        <div>Support the Developer</div>
       </div>
     </div>
   );

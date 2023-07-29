@@ -9,7 +9,9 @@ import {
   NewPlayerJoinedEvent,
   PlayerNameUpdatedEvent,
   PlayerSideUpdatedEvent,
+  ReceiveChatEvent,
   ReceiveMoveEvent,
+  SendChatEvent,
   SendMoveEvent,
   StartGameEvent,
   UpdatePlayerNameEvent,
@@ -81,4 +83,8 @@ export const handleStartGame = (socket: Socket, event: StartGameEvent) => {
 
 export const handleSendMove = (socket: Socket, event: SendMoveEvent) => {
   socket.to(event.roomId).emit('receiveMove', { move: event.move } as ReceiveMoveEvent);
+};
+
+export const handleSendChat = (socket: Socket, event: SendChatEvent) => {
+  socket.to(event.roomId).emit('receiveChat', { item: event.item } as ReceiveChatEvent);
 };

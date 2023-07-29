@@ -5,10 +5,12 @@ import {
   GameOverState,
   GridCoordinate,
   MoveStatus,
+  MoveType,
   NextTurnSource,
   Piece,
   PieceOwner,
   PieceType,
+  SerializedMove,
   Tile,
   TileStatus,
   TileStatusType,
@@ -289,6 +291,7 @@ export const EndTurn = (state: GameState) => {
   ClearThreatStatuses(state);
   ClearMoveHighlights(state);
   state.selected = null;
+  if (state.lastMove !== null) state.lastMoveString = GetSerializedMoveString(state.lastMove!, GetCurrentPlayer(state));
 };
 
 export const ClearThreatStatuses = (state: GameState) => {
@@ -433,4 +436,13 @@ export const GetPieceByTag = (state: GameState, owner: PieceOwner, tag: string):
     }
   }
   return null;
+};
+
+export const GetSerializedMoveString = (move: SerializedMove, player: PieceOwner): string => {
+  let out = ``;
+  out += `${player === PieceOwner.black ? 'B' : 'W'} `;
+  out += `${move.sourceTag} `;
+  out += `(${move.axial.q},${move.axial.r}) `;
+  out += `${move.type}${move.type === MoveType.promotion ? `-${move.promoPieceType}` : ''}`;
+  return out;
 };

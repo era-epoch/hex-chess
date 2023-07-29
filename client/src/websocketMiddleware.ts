@@ -9,7 +9,9 @@ import {
   NewPlayerJoinedEvent,
   PlayerNameUpdatedEvent,
   PlayerSideUpdatedEvent,
+  ReceiveChatEvent,
   ReceiveMoveEvent,
+  SendChatEvent,
   SendMoveEvent,
   StartGameEvent,
   UpdatePlayerNameEvent,
@@ -17,6 +19,7 @@ import {
 } from '../../websockets/events';
 import {
   pushAlert,
+  pushLogItem,
   setActiveDialogue,
   setOnlineGameId,
   setOnlinePlayerId,
@@ -26,7 +29,7 @@ import {
 import { recieveOnlineMove, resetBoard, setLocalSide } from './State/Slices/gameSlice';
 import { RootState } from './State/rootReducer';
 import { IS_PROD } from './env';
-import { AlertSeverity, Dialogue, PlayerSide, SerializedMove } from './types';
+import { AlertSeverity, Dialogue, LogItem, PlayerSide, SerializedMove } from './types';
 import { createAlert } from './utility';
 
 export const wsConnect = () => ({ type: 'WS_CONNECT' });
@@ -52,6 +55,7 @@ export const wsStartGame = (roomId: string, creatorId: string, creatorSide: Play
   creatorSide,
 });
 export const wsSendMove = (roomId: string, move: SerializedMove) => ({ type: 'WS_SEND_MOVE', roomId, move });
+export const wsSendChat = (roomId: string, item: LogItem) => ({ type: 'WS_SEND_CHAT', roomId, item });
 
 const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
   let socket: Socket | null = null;
@@ -73,6 +77,13 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
       api.dispatch(setOnlineGameId(event.roomId));
       api.dispatch(setOnlinePlayerId(event.playerId));
       api.dispatch(setActiveDialogue(Dialogue.CreateGame));
+      api.dispatch(
+        pushLogItem({
+          content: `New online game created with id: ${event.roomId}`,
+          source: 'Game',
+          timestamp: Date.now(),
+        }),
+      );
     });
 
     socket.on('joinGameFailed', (event: JoinGameFailedEvent) => {
@@ -84,6 +95,13 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
       api.dispatch(setOnlinePlayerId(event.playerId));
       api.dispatch(pushAlert(createAlert('Joined game!', AlertSeverity.success)));
       api.dispatch(setActiveDialogue(Dialogue.GameLobby));
+      api.dispatch(
+        pushLogItem({
+          content: `Joined online game: ${event.roomId}`,
+          source: 'Game',
+          timestamp: Date.now(),
+        }),
+      );
     });
 
     socket.on('newPlayerJoined', (event: NewPlayerJoinedEvent) => {
@@ -93,6 +111,13 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
       const state: RootState = api.getState();
       api.dispatch(wsUpdateName(state.app.playerName, state.app.onlinePlayerId!, state.app.onlineGameId!));
       api.dispatch(wsUpdateSide(state.app.playerSide, state.app.onlinePlayerId!, state.app.onlineGameId!));
+      api.dispatch(
+        pushLogItem({
+          content: `New player joined: ${event.playerName}`,
+          source: 'Game',
+          timestamp: Date.now(),
+        }),
+      );
     });
 
     socket.on('playerNameUpdated', (event: PlayerNameUpdatedEvent) => {
@@ -133,10 +158,21 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
           api.dispatch(setLocalSide(PlayerSide.black));
         }
       }
+      api.dispatch(
+        pushLogItem({
+          content: `Game started`,
+          source: 'Game',
+          timestamp: Date.now(),
+        }),
+      );
     });
 
     socket.on('receiveMove', (event: ReceiveMoveEvent) => {
       api.dispatch(recieveOnlineMove(event.move));
+    });
+
+    socket.on('receiveChat', (event: ReceiveChatEvent) => {
+      api.dispatch(pushLogItem(event.item));
     });
   };
 
@@ -173,9 +209,12 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
         if (socket !== null) socket.emit('startGame', action as StartGameEvent);
         break;
       case 'WS_SEND_MOVE':
-        console.log('Sending Move');
         if (socket === null) connect(action);
         if (socket !== null) socket.emit('sendMove', action as SendMoveEvent);
+        break;
+      case 'WS_SEND_CHAT':
+        if (socket === null) connect(action);
+        if (socket !== null) socket.emit('sendChat', action as SendChatEvent);
         break;
       default:
         return next(action);

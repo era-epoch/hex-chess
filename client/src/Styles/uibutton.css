@@ -40,3 +40,15 @@
 .ui-button.with-text {
   padding: 1rem 1.5rem 1rem 1rem;
 }
+
+@keyframes IconBounce {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+  100% {
+    transform: translateY(0pc);
+  }
+}

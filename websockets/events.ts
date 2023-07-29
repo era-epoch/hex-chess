@@ -1,4 +1,4 @@
-import { PlayerSide, SerializedMove } from '../client/src/types';
+import { LogItem, PlayerSide, SerializedMove } from '../client/src/types';
 
 export interface ConnectEvent {
   url: string;
@@ -70,4 +70,13 @@ export interface SendMoveEvent {
 
 export interface ReceiveMoveEvent {
   move: SerializedMove;
+}
+
+export interface SendChatEvent {
+  roomId: string;
+  item: LogItem;
+}
+
+export interface ReceiveChatEvent {
+  item: LogItem;
 }

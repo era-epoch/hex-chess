@@ -8,6 +8,7 @@ body {
     'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* COLOURS */
   --background: #eee;
   --contrast: #222;
   --offset: #aaa;
@@ -15,6 +16,8 @@ body {
   --primary-dark: #8b8000;
   --primary: yellow;
   --button-primary: var(--contrast);
+  /* OTHER */
+  --menu-height: 50px;
 }
 
 code {
@@ -148,7 +151,7 @@ input {
 }
 
 .menu {
-  height: 50px;
+  height: var(--menu-height);
   width: 100%;
   background-color: var(--contrast);
   display: flex;
