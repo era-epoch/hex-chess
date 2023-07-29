@@ -59,6 +59,8 @@ app.get('/*', (req: Request, res: Response) => {
 // Express server listening...
 const port = process.env.PORT || 5000;
 
+console.log(process.env);
+
 server.listen(port, () => {
   console.log(`Listening on port ${port}...`);
 });
