@@ -16,7 +16,7 @@ import { wsConnect, wsDisconnect } from './websocketMiddleware';
 
 let socketURL: string;
 if (IS_PROD) {
-  socketURL = `${window.location.hostname}:5000`;
+  socketURL = `${window.location.hostname}:${process.env.PORT}`;
 } else {
   socketURL = `https://www.hex-chess.io:5000`;
 }
