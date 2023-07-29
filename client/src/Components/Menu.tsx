@@ -21,6 +21,9 @@ const Menu = (props: Props) => {
   const onClickSupport = () => {
     window.open('https://www.patreon.com/eracodes', '_blank');
   };
+  const onClickBugs = () => {
+    window.open('https://github.com/era-epoch/hex-chess', '_blank');
+  };
   return (
     <div className="menu">
       <div className="menu-op" onClick={onClickPlayLocal}>
@@ -34,6 +37,9 @@ const Menu = (props: Props) => {
       </div>
       <div className="menu-op" onClick={onClickSupport}>
         <div>Support the Developer</div>
+      </div>
+      <div className="menu-op" onClick={onClickBugs}>
+        <div>Bugs and Feature Requests</div>
       </div>
     </div>
   );
