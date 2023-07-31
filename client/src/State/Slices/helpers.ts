@@ -418,6 +418,7 @@ export const NextTurn = (state: GameState, source: NextTurnSource) => {
   StartTurn(state);
   if (source === NextTurnSource.Local) {
     if (state.localSide !== null) {
+      console.log('Setting Send Move Flag to TRUE');
       state.sendMoveFlag = true;
     }
   }

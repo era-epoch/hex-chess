@@ -1,9 +1,8 @@
 import CSS from 'csstype';
 import { useSelector } from 'react-redux';
-import { v4 as uuid } from 'uuid';
 import { RootState } from '../State/rootReducer';
 import { PlayerSide } from '../types';
-import PromotionDialogue from './PromotionDialogue';
+import PromotionDialogue from './Dialogues/PromotionDialogue';
 import RenderTile from './RenderTile';
 import TurnCounter from './TurnCounter';
 
@@ -76,9 +75,9 @@ const GameCanvas = (props: Props): JSX.Element => {
       <div className="board">
         {board.map((col, i) => {
           return (
-            <div className="column" key={uuid()}>
+            <div className="column" key={i}>
               {col.map((tile, j) => {
-                return <RenderTile tile={tile} tileStyle={tileStyles[i][j]} />;
+                return <RenderTile tile={tile} tileStyle={tileStyles[i][j]} key={j} />;
               })}
             </div>
           );

@@ -107,6 +107,7 @@ export enum Dialogue {
   CreateGame,
   JoinGame,
   GameLobby,
+  FindGame,
 }
 
 export enum PlayerSide {

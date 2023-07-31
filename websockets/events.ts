@@ -4,6 +4,10 @@ export interface ConnectEvent {
   url: string;
 }
 
+export interface ConnectedEvent {
+  population: number;
+}
+
 export interface JoinGameEvent {
   roomId: string;
   playerName: string;
@@ -79,4 +83,18 @@ export interface SendChatEvent {
 
 export interface ReceiveChatEvent {
   item: LogItem;
+}
+
+export interface FindGameEvent {
+  playerName: string;
+}
+
+export interface MatchmadeGameJoinedEvent {
+  gameId: string;
+  playerId: string;
+  playerSide: PlayerSide;
+}
+
+export interface JoinRoomDirectEvent {
+  roomId: string;
 }

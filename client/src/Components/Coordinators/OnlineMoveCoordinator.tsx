@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { setSendMoveFlag } from '../State/Slices/gameSlice';
-import { RootState } from '../State/rootReducer';
-import { wsSendMove } from '../websocketMiddleware';
+import { setSendMoveFlag } from '../../State/Slices/gameSlice';
+import { RootState } from '../../State/rootReducer';
+import { wsSendMove } from '../../websocketMiddleware';
 
 interface Props {}
 
@@ -12,6 +12,7 @@ const OnlineMoveCoordinator = (props: Props): JSX.Element => {
   const sendMoveFlag = useSelector((state: RootState) => state.game.sendMoveFlag);
 
   if (sendMoveFlag) {
+    console.log('Sending move');
     dispatch(wsSendMove(roomId!, lastMove!));
     dispatch(setSendMoveFlag(false));
   }

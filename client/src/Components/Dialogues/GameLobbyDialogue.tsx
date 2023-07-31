@@ -1,16 +1,16 @@
 import { faChessKing } from '@fortawesome/free-regular-svg-icons';
-import { faDice, faPlay, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faDice, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setActiveDialogue, setPlayerName, setPlayerSide } from '../State/Slices/appSlice';
-import { RootState } from '../State/rootReducer';
-import { Dialogue, PlayerSide, ZIndices } from '../types';
-import { wsStartGame, wsUpdateName, wsUpdateSide } from '../websocketMiddleware';
+import { setActiveDialogue, setPlayerName } from '../../State/Slices/appSlice';
+import { RootState } from '../../State/rootReducer';
+import { Dialogue, PlayerSide, ZIndices } from '../../types';
+import { wsUpdateName } from '../../websocketMiddleware';
 
 interface Props {}
 
-const CreateGameDialogue = (props: Props): JSX.Element => {
+const GameLobbyDialogue = (props: Props): JSX.Element => {
   const dispatch = useDispatch();
   const activeDialogue = useSelector((state: RootState) => state.app.activeDialogue);
   const onlineGameId = useSelector((state: RootState) => state.app.onlineGameId);
@@ -30,7 +30,7 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
   }
 
   useEffect(() => {
-    if (activeDialogue === Dialogue.CreateGame) {
+    if (activeDialogue === Dialogue.GameLobby) {
       setShown(true);
       hasShown.current = true;
     } else if (!hasShown.current) {
@@ -50,23 +50,6 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
     // TODO: Leave game lobby
   };
 
-  const startButtonOnClick = () => {
-    let creatorSide = null;
-    if (playerSide === PlayerSide.random) {
-      creatorSide = Math.random() > 0.5 ? PlayerSide.black : PlayerSide.white;
-    } else {
-      creatorSide = playerSide;
-    }
-    dispatch(wsStartGame(onlineGameId!, playerId!, creatorSide));
-  };
-
-  const handlePlayerSideChange = (side: PlayerSide) => {
-    dispatch(setPlayerSide(side));
-    if (onlineGameId !== null) {
-      dispatch(wsUpdateSide(side, playerId!, onlineGameId));
-    }
-  };
-
   const handlePlayerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setPlayerName(event.target.value));
     if (onlineGameId !== null) {
@@ -82,7 +65,7 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
       <div className="dialogue-internal">
         <div className="dialogue-content">
           <div className="dialogue-section">
-            <b>Your Game ID</b>
+            <b>Game ID</b>
           </div>
           <div className="dialogue-section">{onlineGameId}</div>
           <div className="dialogue-section">
@@ -102,42 +85,24 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
             )}
           </div>
           <div className="dialogue-section">
-            <b>Your Side</b>
+            <b>Your Side (selected by {opponentName})</b>
           </div>
-          <div className="dialogue-section side-selection">
-            <div
-              className={`promo-option no-effects ${playerSide === PlayerSide.white ? '' : 'small'}`}
-              onClick={() => {
-                handlePlayerSideChange(PlayerSide.white);
-              }}
-            >
+          <div className="dialogue-section side-selection no-interact">
+            <div className={`promo-option no-effects ${playerSide === PlayerSide.white ? '' : 'small'}`}>
               <FontAwesomeIcon icon={faChessKing} />
             </div>
-            <div
-              className={`promo-option no-effects inverted ${playerSide === PlayerSide.black ? '' : 'small'}`}
-              onClick={() => {
-                handlePlayerSideChange(PlayerSide.black);
-              }}
-            >
+            <div className={`promo-option no-effects inverted ${playerSide === PlayerSide.black ? '' : 'small'}`}>
               <FontAwesomeIcon icon={faChessKing} />
             </div>
-            <div
-              className={`promo-option no-effects ${playerSide === PlayerSide.random ? '' : 'small'}`}
-              onClick={() => {
-                handlePlayerSideChange(PlayerSide.random);
-              }}
-            >
+            <div className={`promo-option no-effects ${playerSide === PlayerSide.random ? '' : 'small'}`}>
               <FontAwesomeIcon icon={faDice} />
             </div>
           </div>
+          <div className="dialogue-section">Waiting for {opponentName} to start the game</div>
           <div className="dialogue-section">
             <div className="dialogue-controls">
               <div className="ui-button close fill" onClick={closeButtonOnClick}>
                 <FontAwesomeIcon icon={faXmark} />
-              </div>
-              <div className="ui-button fill with-text" onClick={startButtonOnClick}>
-                <FontAwesomeIcon icon={faPlay} />
-                Play
               </div>
             </div>
           </div>
@@ -147,4 +112,4 @@ const CreateGameDialogue = (props: Props): JSX.Element => {
   );
 };
 
-export default CreateGameDialogue;
+export default GameLobbyDialogue;

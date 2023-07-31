@@ -1,11 +1,15 @@
 import crypto from 'crypto';
 import { Server, Socket } from 'socket.io';
+import { PlayerSide } from '../client/src/types';
+import { server_data } from '../main';
 import {
   GameCreatedEvent,
   GameJoinedEvent,
   GameStartedEvent,
   JoinGameEvent,
   JoinGameFailedEvent,
+  JoinRoomDirectEvent,
+  MatchmadeGameJoinedEvent,
   NewPlayerJoinedEvent,
   PlayerNameUpdatedEvent,
   PlayerSideUpdatedEvent,
@@ -21,10 +25,53 @@ import { RoomExists } from './helpers';
 
 export const handleDisconnect = () => {
   console.log('User disconnected');
+  server_data.population--;
+};
+
+export const RemoveSocketFromAllRooms = (socket: Socket) => {
+  const currRooms = socket.rooms;
+  currRooms.forEach((room) => {
+    if (room != socket.id) {
+      socket.leave(room);
+    }
+  });
+};
+
+export const handleFindGame = (socket: Socket) => {
+  RemoveSocketFromAllRooms(socket);
+  if (server_data.waiting.length >= 1) {
+    const opponentId = server_data.waiting.pop();
+    // There's somoene already waiting for a game
+    const newRoomId = crypto.randomBytes(8).toString('hex');
+    const player1Id = crypto.randomBytes(8).toString('hex');
+    const player2Id = crypto.randomBytes(8).toString('hex');
+    let player1Side = PlayerSide.black;
+    let player2Side = PlayerSide.white;
+
+    if (Math.random() > 0.5) {
+      player1Side = PlayerSide.white;
+      player2Side = PlayerSide.black;
+    }
+
+    socket.emit('matchmadeGameJoined', {
+      gameId: newRoomId,
+      playerId: player2Id,
+      playerSide: player2Side,
+    } as MatchmadeGameJoinedEvent);
+
+    socket.to(opponentId).emit('matchmadeGameJoined', {
+      gameId: newRoomId,
+      playerId: player1Id,
+      playerSide: player1Side,
+    } as MatchmadeGameJoinedEvent);
+  } else {
+    server_data.waiting.push(socket.id);
+    socket.emit('joinedQueue');
+  }
 };
 
 export const handleCreateGame = (socket: Socket) => {
-  console.log('Creating game');
+  RemoveSocketFromAllRooms(socket);
   const newRoomId = crypto.randomBytes(8).toString('hex');
   const newPlayerId = crypto.randomBytes(8).toString('hex');
   socket.join(newRoomId);
@@ -35,6 +82,7 @@ export const handleCreateGame = (socket: Socket) => {
 };
 
 export const handleJoinGame = (io: Server, socket: Socket, event: JoinGameEvent) => {
+  RemoveSocketFromAllRooms(socket);
   const room = event.roomId;
   if (RoomExists(io, room)) {
     if (io.of('/').adapter.rooms.get(room).size >= 2) {
@@ -87,4 +135,9 @@ export const handleSendMove = (socket: Socket, event: SendMoveEvent) => {
 
 export const handleSendChat = (socket: Socket, event: SendChatEvent) => {
   socket.to(event.roomId).emit('receiveChat', { item: event.item } as ReceiveChatEvent);
+};
+
+export const handleJoinRoomDirect = (socket: Socket, event: JoinRoomDirectEvent) => {
+  // console.log('Joining room direct: ', event.roomId);
+  socket.join(event.roomId);
 };

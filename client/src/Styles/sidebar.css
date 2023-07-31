@@ -51,11 +51,11 @@
 }
 
 .chat-enter:hover svg {
-  scale: 1.1;
+  scale: 1.15;
 }
 
-.chat-enter:active {
-  font-size: 0.9rem;
+.chat-enter:active svg {
+  scale: 0.8;
 }
 
 .log-item {

@@ -11,6 +11,7 @@ export interface AppState {
   opponentName: string | null;
   alerts: Alert[];
   log: LogItem[];
+  servicePopulation: number;
 }
 
 const initialAppState: AppState = {
@@ -23,6 +24,7 @@ const initialAppState: AppState = {
   playerSide: PlayerSide.random,
   alerts: [],
   log: [],
+  servicePopulation: 0,
 };
 
 const appSlice = createSlice({
@@ -65,6 +67,9 @@ const appSlice = createSlice({
     pushLogItem: (state: AppState, action: PayloadAction<LogItem>) => {
       state.log.push(action.payload);
     },
+    setServicePopulation: (state: AppState, action: PayloadAction<number>) => {
+      state.servicePopulation = action.payload;
+    },
   },
 });
 
@@ -81,4 +86,5 @@ export const {
   setPlayerSide,
   setOpponentName,
   pushLogItem,
+  setServicePopulation,
 } = appSlice.actions;

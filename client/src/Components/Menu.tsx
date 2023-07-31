@@ -1,5 +1,6 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setActiveDialogue } from '../State/Slices/appSlice';
+import { RootState } from '../State/rootReducer';
 import { Dialogue } from '../types';
 import { wsCreateGame } from '../websocketMiddleware';
 
@@ -7,16 +8,24 @@ interface Props {}
 
 const Menu = (props: Props) => {
   const dispatch = useDispatch();
+  const onlineGameId = useSelector((state: RootState) => state.app.onlineGameId);
   const onClickPlayLocal = () => {
     // dispatch(setActiveGame(true));
     // eslint-disable-next-line no-restricted-globals
     location.reload();
   };
   const onClickCreateGame = () => {
-    dispatch(wsCreateGame());
+    if (onlineGameId === null) {
+      dispatch(wsCreateGame());
+    } else {
+      dispatch(setActiveDialogue(Dialogue.CreateGame));
+    }
   };
   const onClickJoinGame = () => {
     dispatch(setActiveDialogue(Dialogue.JoinGame));
+  };
+  const onClickFindGame = () => {
+    dispatch(setActiveDialogue(Dialogue.FindGame));
   };
   const onClickSupport = () => {
     window.open('https://www.patreon.com/eracodes', '_blank');
@@ -27,13 +36,16 @@ const Menu = (props: Props) => {
   return (
     <div className="menu">
       <div className="menu-op" onClick={onClickPlayLocal}>
-        Play Local Game
+        Play Offline Game
+      </div>
+      <div className="menu-op" onClick={onClickFindGame}>
+        Find Online Game
       </div>
       <div className="menu-op" onClick={onClickCreateGame}>
-        <div>Create Online Game</div>
+        <div>Create Private Game</div>
       </div>
       <div className="menu-op" onClick={onClickJoinGame}>
-        <div>Join Online Game</div>
+        <div>Join Private Game</div>
       </div>
       <div className="menu-op small" onClick={onClickSupport}>
         <div>Support the Developer</div>

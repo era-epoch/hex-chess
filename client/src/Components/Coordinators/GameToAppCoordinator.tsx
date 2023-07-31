@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { pushLogItem } from '../State/Slices/appSlice';
-import { RootState } from '../State/rootReducer';
+import { pushLogItem } from '../../State/Slices/appSlice';
+import { RootState } from '../../State/rootReducer';
 
 interface Props {}
 

@@ -75,6 +75,9 @@ const gameSlice = createSlice({
     resetBoard: (state: GameState) => {
       console.log('Resetting Board');
       state.turn = 0;
+      state.lastMove = null;
+      state.promotionTile = null;
+      state.localSide = null;
       ResetGameBoard(state);
       NextTurn(state, NextTurnSource.Reset);
     },

@@ -2,9 +2,9 @@ import { faChessBishop, faChessKnight, faChessQueen, faChessRook } from '@fortaw
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { executePromotePiece } from '../State/Slices/gameSlice';
-import { RootState } from '../State/rootReducer';
-import { PieceType, ZIndices } from '../types';
+import { executePromotePiece } from '../../State/Slices/gameSlice';
+import { RootState } from '../../State/rootReducer';
+import { PieceType, ZIndices } from '../../types';
 
 interface Props {}
 

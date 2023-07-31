@@ -5,7 +5,9 @@ import { createServer } from 'http';
 import path from 'path';
 import { Server } from 'socket.io';
 import {
+  ConnectedEvent,
   JoinGameEvent,
+  JoinRoomDirectEvent,
   SendChatEvent,
   SendMoveEvent,
   StartGameEvent,
@@ -15,7 +17,9 @@ import {
 import {
   handleCreateGame,
   handleDisconnect,
+  handleFindGame,
   handleJoinGame,
+  handleJoinRoomDirect,
   handleSendChat,
   handleSendMove,
   handleStartGame,
@@ -36,9 +40,17 @@ const io = new Server(server, {
   },
 });
 
+export const server_data = {
+  population: 0,
+  waiting: [],
+};
+
 io.on('connection', (socket) => {
+  server_data.population++;
   console.log('a user connected');
+  // Set up handling functions for server socket
   socket.on('disconnect', handleDisconnect);
+  socket.on('findGame', () => handleFindGame(socket));
   socket.on('createGame', () => handleCreateGame(socket));
   socket.on('joinGame', (event: JoinGameEvent) => handleJoinGame(io, socket, event));
   socket.on('updatePlayerName', (event: UpdatePlayerNameEvent) => handleUpdatePlayerName(socket, event));
@@ -46,6 +58,10 @@ io.on('connection', (socket) => {
   socket.on('startGame', (event: StartGameEvent) => handleStartGame(socket, event));
   socket.on('sendMove', (event: SendMoveEvent) => handleSendMove(socket, event));
   socket.on('sendChat', (event: SendChatEvent) => handleSendChat(socket, event));
+  socket.on('joinRoomDirect', (event: JoinRoomDirectEvent) => handleJoinRoomDirect(socket, event));
+
+  // Respond with 'connected' event
+  socket.emit('connected', { population: server_data.population } as ConnectedEvent);
 });
 
 // parse application/json
@@ -62,7 +78,7 @@ app.get('/*', (req: Request, res: Response) => {
 // Express server listening...
 const port = process.env.PORT || 5000;
 
-console.log(process.env);
+// console.log(process.env);
 
 server.listen(port, () => {
   console.log(`Listening on port ${port}...`);

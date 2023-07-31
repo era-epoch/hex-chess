@@ -2,10 +2,10 @@ import { faRightToBracket, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setActiveDialogue, setPlayerName } from '../State/Slices/appSlice';
-import { RootState } from '../State/rootReducer';
-import { Dialogue, ZIndices } from '../types';
-import { wsJoinGame } from '../websocketMiddleware';
+import { setActiveDialogue, setPlayerName } from '../../State/Slices/appSlice';
+import { RootState } from '../../State/rootReducer';
+import { Dialogue, ZIndices } from '../../types';
+import { wsJoinGame } from '../../websocketMiddleware';
 
 interface Props {}
 

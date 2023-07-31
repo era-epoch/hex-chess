@@ -1,11 +1,14 @@
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from '@reduxjs/toolkit';
 import { Socket, io } from 'socket.io-client';
 import {
+  ConnectedEvent,
   GameCreatedEvent,
   GameJoinedEvent,
   GameStartedEvent,
   JoinGameEvent,
   JoinGameFailedEvent,
+  JoinRoomDirectEvent,
+  MatchmadeGameJoinedEvent,
   NewPlayerJoinedEvent,
   PlayerNameUpdatedEvent,
   PlayerSideUpdatedEvent,
@@ -25,6 +28,7 @@ import {
   setOnlinePlayerId,
   setOpponentName,
   setPlayerSide,
+  setServicePopulation,
 } from './State/Slices/appSlice';
 import { recieveOnlineMove, resetBoard, setLocalSide } from './State/Slices/gameSlice';
 import { RootState } from './State/rootReducer';
@@ -35,6 +39,7 @@ import { createAlert } from './utility';
 export const wsConnect = () => ({ type: 'WS_CONNECT' });
 export const wsDisconnect = () => ({ type: 'WS_DISCONNECT' });
 export const wsCreateGame = () => ({ type: 'WS_CREATE_GAME' });
+export const wsFindGame = () => ({ type: 'WS_FIND_GAME' });
 export const wsJoinGame = (roomId: string, playerName: string) => ({ type: 'WS_JOIN_GAME', roomId, playerName });
 export const wsUpdateName = (playerName: string, playerId: string, roomId: string) => ({
   type: 'WS_UPDATE_NAME',
@@ -56,6 +61,7 @@ export const wsStartGame = (roomId: string, creatorId: string, creatorSide: Play
 });
 export const wsSendMove = (roomId: string, move: SerializedMove) => ({ type: 'WS_SEND_MOVE', roomId, move });
 export const wsSendChat = (roomId: string, item: LogItem) => ({ type: 'WS_SEND_CHAT', roomId, item });
+export const wsJoinRoomDirect = (roomId: string) => ({ type: 'WS_JOIN_ROOM', roomId });
 
 const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
   let socket: Socket | null = null;
@@ -71,6 +77,17 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
       socket = io('localhost:5000');
     }
     socket.connect();
+
+    socket.on('connected', (event: ConnectedEvent) => {
+      api.dispatch(setServicePopulation(event.population));
+      api.dispatch(
+        pushLogItem({
+          content: `Current Hex-Chess.io population: ${event.population}`,
+          source: 'Game',
+          timestamp: Date.now(),
+        }),
+      );
+    });
 
     /* Socket events */
     socket.on('gameCreated', (event: GameCreatedEvent) => {
@@ -174,6 +191,33 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
     socket.on('receiveChat', (event: ReceiveChatEvent) => {
       api.dispatch(pushLogItem(event.item));
     });
+
+    socket.on('joinedQueue', () => {
+      api.dispatch(
+        pushLogItem({
+          content: `Joined matchmaking queue.`,
+          source: 'Game',
+          timestamp: Date.now(),
+        }),
+      );
+    });
+
+    socket.on('matchmadeGameJoined', (event: MatchmadeGameJoinedEvent) => {
+      api.dispatch(
+        pushLogItem({
+          content: `Game found!`,
+          source: 'Game',
+          timestamp: Date.now(),
+        }),
+      );
+      api.dispatch(setOnlineGameId(event.gameId));
+      api.dispatch(setOnlinePlayerId(event.playerId));
+      api.dispatch(setActiveDialogue(Dialogue.none));
+      api.dispatch(pushAlert(createAlert('Game Started', AlertSeverity.success)));
+      api.dispatch(resetBoard());
+      api.dispatch(setLocalSide(event.playerSide));
+      api.dispatch(wsJoinRoomDirect(event.gameId));
+    });
   };
 
   return (next: Dispatch<AnyAction>) => (action: any) => {
@@ -190,6 +234,10 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
       case 'WS_CREATE_GAME':
         if (socket === null) connect(action);
         if (socket !== null) socket.emit('createGame');
+        break;
+      case 'WS_FIND_GAME':
+        if (socket === null) connect(action);
+        if (socket !== null) socket.emit('findGame');
         break;
       case 'WS_JOIN_GAME':
         console.log('Attempting join:', action);
@@ -209,12 +257,17 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
         if (socket !== null) socket.emit('startGame', action as StartGameEvent);
         break;
       case 'WS_SEND_MOVE':
+        console.log(action);
         if (socket === null) connect(action);
         if (socket !== null) socket.emit('sendMove', action as SendMoveEvent);
         break;
       case 'WS_SEND_CHAT':
         if (socket === null) connect(action);
         if (socket !== null) socket.emit('sendChat', action as SendChatEvent);
+        break;
+      case 'WS_JOIN_ROOM':
+        if (socket === null) connect(action);
+        if (socket !== null) socket.emit('joinRoomDirect', action as JoinRoomDirectEvent);
         break;
       default:
         return next(action);
