@@ -12,7 +12,6 @@ const OnlineMoveCoordinator = (props: Props): JSX.Element => {
   const sendMoveFlag = useSelector((state: RootState) => state.game.sendMoveFlag);
 
   if (sendMoveFlag) {
-    console.log('Sending move');
     dispatch(wsSendMove(roomId!, lastMove!));
     dispatch(setSendMoveFlag(false));
   }

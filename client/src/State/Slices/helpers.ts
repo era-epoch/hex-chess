@@ -238,7 +238,8 @@ export const AnalyzeThreats = (state: GameState) => {
 export const PopulateThreats = (state: GameState, piece: Piece, checkKing: boolean) => {
   const moveF = CalculateMovesFunctions.get(piece.type);
   if (moveF === undefined) return;
-  const moves = moveF(state, piece);
+  let verbose = false;
+  const moves = moveF(state, piece, verbose);
   for (const move of moves) {
     // Check if king is under threat and prune moves
     // TODO: improve efficiency of this
@@ -250,11 +251,12 @@ export const PopulateThreats = (state: GameState, piece: Piece, checkKing: boole
         const gridMove = AxialToGrid(move.axial);
         premonitionMover.pos = gridMove;
         premonitionMover.axial = move.axial;
-        premonitionBoard[gridMove.col][gridMove.row].content = premonitionMover;
+        draftState.board[gridMove.col][gridMove.row].content = premonitionMover;
+        draftState.board[piece.pos.col][piece.pos.row].content = null;
 
-        premonitionBoard[piece.pos.col][piece.pos.row].content = null;
+        ClearThreatStatuses(draftState);
 
-        for (const col of premonitionBoard) {
+        for (const col of draftState.board) {
           for (const tile of col) {
             if (tile.content !== null) {
               PopulateThreats(draftState, tile.content, false);
@@ -263,11 +265,13 @@ export const PopulateThreats = (state: GameState, piece: Piece, checkKing: boole
         }
 
         const kingTile = GetTileWithKing(draftState, piece.owner);
+
         if (kingTile !== undefined && piece.owner === PieceOwner.black) {
           if (kingTile.statuses.some((status) => status.type === TileStatusType.whiteThreatening)) {
             validMove = false;
           }
-        } else if (kingTile !== undefined && piece.owner === PieceOwner.white) {
+        }
+        if (kingTile !== undefined && piece.owner === PieceOwner.white) {
           if (kingTile.statuses.some((status) => status.type === TileStatusType.blackThreatening)) {
             validMove = false;
           }
@@ -320,6 +324,7 @@ export const CaptureContent = (state: GameState, tile: Tile) => {
 
 export const StartTurn = (state: GameState) => {
   state.turn += 1;
+  console.log('TURN: ' + state.turn);
   AnalyzeThreats(state);
   CheckForGameOver(state);
 };
@@ -418,7 +423,7 @@ export const NextTurn = (state: GameState, source: NextTurnSource) => {
   StartTurn(state);
   if (source === NextTurnSource.Local) {
     if (state.localSide !== null) {
-      console.log('Setting Send Move Flag to TRUE');
+      // console.log('Setting Send Move Flag to TRUE');
       state.sendMoveFlag = true;
     }
   }

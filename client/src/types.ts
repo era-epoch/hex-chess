@@ -35,16 +35,16 @@ export type Piece = {
 };
 
 export enum TileStatusType {
-  whiteThreatening,
-  blackThreatening,
-  enPassantBlack,
-  enPassantWhite,
-  whitePawnOrigin,
-  blackPawnOrigin,
-  moveHighlight,
-  captureHighlight,
-  whitePromoTile,
-  blackPromoTile,
+  whiteThreatening = 'whiteThreatening',
+  blackThreatening = 'blackThreatening',
+  enPassantBlack = 'enPassantBlack',
+  enPassantWhite = 'enPassantWhite',
+  whitePawnOrigin = 'whitePawnOrigin',
+  blackPawnOrigin = 'blackPawnOrigin',
+  moveHighlight = 'moveHighlight',
+  captureHighlight = 'captureHighlight',
+  whitePromoTile = 'whitePromoTile',
+  blackPromoTile = 'blackPromoTile',
 }
 
 export type TileStatus = {
@@ -72,7 +72,7 @@ export type SerializedMove = {
   promoPieceType?: PieceType;
 };
 
-export type MoveCalculationFunction = (state: GameState, piece: Piece) => MoveInfo[];
+export type MoveCalculationFunction = (state: GameState, piece: Piece, verbose?: boolean) => MoveInfo[];
 
 export type MoveStatus = TileStatus & {
   move: MoveInfo;

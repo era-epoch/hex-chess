@@ -104,7 +104,7 @@ const RenderTile = (props: Props): JSX.Element => {
   };
 
   const handleTileClick = (e: React.MouseEvent<HTMLElement>) => {
-    console.log('Clicked: ', props.tile.axial);
+    // console.log('Clicked: ', props.tile.axial);
     dispatch(attemptMove(props.tile.axial));
   };
 

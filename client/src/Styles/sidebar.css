@@ -24,6 +24,15 @@
   flex-direction: column;
   justify-content: end;
   font-size: 0.75rem;
+  overflow-y: auto;
+}
+
+.log {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
 }
 
 .chat-input {

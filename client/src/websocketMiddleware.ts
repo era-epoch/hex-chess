@@ -257,7 +257,6 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
         if (socket !== null) socket.emit('startGame', action as StartGameEvent);
         break;
       case 'WS_SEND_MOVE':
-        console.log(action);
         if (socket === null) connect(action);
         if (socket !== null) socket.emit('sendMove', action as SendMoveEvent);
         break;

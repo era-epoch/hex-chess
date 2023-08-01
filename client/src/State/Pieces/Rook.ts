@@ -20,7 +20,12 @@ export const createRook = (pos: GridCoordinate, owner: PieceOwner, tag: string):
   return Rook;
 };
 
-export const CalculateRookMoves: MoveCalculationFunction = (state: GameState, rook: Rook): MoveInfo[] => {
+export const CalculateRookMoves: MoveCalculationFunction = (
+  state: GameState,
+  rook: Rook,
+  verbose: boolean = false,
+): MoveInfo[] => {
+  if (verbose) console.log('Checking rook moves');
   const moves: MoveInfo[] = [];
   const start = rook.axial;
   const directions = [
@@ -47,6 +52,12 @@ export const CalculateRookMoves: MoveCalculationFunction = (state: GameState, ro
       } else {
         moves.push({ axial: targetTile.axial, type: MoveType.standard, source: rook });
       }
+    }
+  }
+  if (verbose) {
+    console.log('Moves:');
+    for (const move of moves) {
+      console.log(move.axial.q, move.axial.r);
     }
   }
   return moves;
