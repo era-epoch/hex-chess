@@ -89,6 +89,8 @@ export interface FindGameEvent {
   playerName: string;
 }
 
+export interface CancelFindGameEvent {}
+
 export interface MatchmadeGameJoinedEvent {
   gameId: string;
   playerId: string;

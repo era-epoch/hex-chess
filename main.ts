@@ -15,6 +15,7 @@ import {
   UpdatePlayerSideEvent,
 } from './websockets/events';
 import {
+  handleCancelFindGame,
   handleCreateGame,
   handleDisconnect,
   handleFindGame,
@@ -40,7 +41,12 @@ const io = new Server(server, {
   },
 });
 
-export const server_data = {
+export interface ServerState {
+  population: number;
+  waiting: string[];
+}
+
+export const server_data: ServerState = {
   population: 0,
   waiting: [],
 };
@@ -51,6 +57,7 @@ io.on('connection', (socket) => {
   // Set up handling functions for server socket
   socket.on('disconnect', handleDisconnect);
   socket.on('findGame', () => handleFindGame(socket));
+  socket.on('cancelFindGame', () => handleCancelFindGame(socket));
   socket.on('createGame', () => handleCreateGame(socket));
   socket.on('joinGame', (event: JoinGameEvent) => handleJoinGame(io, socket, event));
   socket.on('updatePlayerName', (event: UpdatePlayerNameEvent) => handleUpdatePlayerName(socket, event));

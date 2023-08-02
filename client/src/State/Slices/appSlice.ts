@@ -12,6 +12,7 @@ export interface AppState {
   alerts: Alert[];
   log: LogItem[];
   servicePopulation: number;
+  searchingForGame: boolean;
 }
 
 const initialAppState: AppState = {
@@ -25,6 +26,7 @@ const initialAppState: AppState = {
   alerts: [],
   log: [],
   servicePopulation: 0,
+  searchingForGame: false,
 };
 
 const appSlice = createSlice({
@@ -70,6 +72,9 @@ const appSlice = createSlice({
     setServicePopulation: (state: AppState, action: PayloadAction<number>) => {
       state.servicePopulation = action.payload;
     },
+    setSearchingForGame: (state: AppState, action: PayloadAction<boolean>) => {
+      state.searchingForGame = action.payload;
+    },
   },
 });
 
@@ -87,4 +92,5 @@ export const {
   setOpponentName,
   pushLogItem,
   setServicePopulation,
+  setSearchingForGame,
 } = appSlice.actions;

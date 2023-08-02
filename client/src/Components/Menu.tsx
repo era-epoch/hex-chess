@@ -40,6 +40,7 @@ const Menu = (props: Props) => {
       </div>
       <div className="menu-op" onClick={onClickFindGame}>
         Find Online Game
+        <div className="menu-subtitle">(Experimental)</div>
       </div>
       <div className="menu-op" onClick={onClickCreateGame}>
         <div>Create Private Game</div>

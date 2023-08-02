@@ -40,6 +40,7 @@ export const wsConnect = () => ({ type: 'WS_CONNECT' });
 export const wsDisconnect = () => ({ type: 'WS_DISCONNECT' });
 export const wsCreateGame = () => ({ type: 'WS_CREATE_GAME' });
 export const wsFindGame = () => ({ type: 'WS_FIND_GAME' });
+export const wsCancelFindGame = () => ({ type: 'WS_CANCEL_FIND_GAME' });
 export const wsJoinGame = (roomId: string, playerName: string) => ({ type: 'WS_JOIN_GAME', roomId, playerName });
 export const wsUpdateName = (playerName: string, playerId: string, roomId: string) => ({
   type: 'WS_UPDATE_NAME',
@@ -200,6 +201,7 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
           timestamp: Date.now(),
         }),
       );
+      api.dispatch(pushAlert(createAlert('Searching for a match', AlertSeverity.success)));
     });
 
     socket.on('matchmadeGameJoined', (event: MatchmadeGameJoinedEvent) => {
@@ -238,6 +240,10 @@ const socketMiddleware: Middleware = (api: MiddlewareAPI) => {
       case 'WS_FIND_GAME':
         if (socket === null) connect(action);
         if (socket !== null) socket.emit('findGame');
+        break;
+      case 'WS_CANCEL_FIND_GAME':
+        if (socket === null) connect(action);
+        if (socket !== null) socket.emit('cancelFindGame');
         break;
       case 'WS_JOIN_GAME':
         console.log('Attempting join:', action);

@@ -19,6 +19,7 @@ body {
   --button-primary: var(--contrast);
   /* OTHER */
   --menu-height: 50px;
+  --anim-delay: 0;
 }
 
 code {
@@ -206,6 +207,10 @@ input {
 
 .menu-op:first-of-type {
   border-left: var(--element-border);
+}
+
+.menu-subtitle {
+  font-size: 0.75rem;
 }
 
 .turn-counter-container {

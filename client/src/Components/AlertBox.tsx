@@ -14,7 +14,7 @@ const AlertBox = (props: Props): JSX.Element => {
   const dispatch = useDispatch();
   const alerts = useSelector((state: RootState) => state.app.alerts);
 
-  const alertLifetimeMS = 10000;
+  const alertLifetimeMS = 5000;
   const alertTransitionTimeMS = 250;
 
   for (const alert of alerts) {

@@ -36,6 +36,10 @@
   width: 100%;
 }
 
+.dialogue-section.col {
+  flex-direction: column;
+}
+
 .dialogue-controls {
   display: flex;
   justify-content: center;
@@ -136,4 +140,110 @@
   gap: 1rem;
   justify-content: space-between;
   align-items: center;
+}
+
+.searching-graphic {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  gap: 1rem;
+  font-size: 2rem;
+}
+
+.searching-title {
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.loading-rotate {
+  animation:
+    LoadingRotate 4000ms var(--anim-delay) ease infinite,
+    ColourCycle 12000ms calc(var(--anim-delay) + 1000ms) ease infinite;
+}
+
+@keyframes LoadingRotate {
+  0% {
+    transform: rotateY(0);
+  }
+  10% {
+    transform: rotateY(180deg);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
+  60% {
+    transform: rotateX(360deg);
+  }
+  100% {
+    transform: rotateX(360deg);
+  }
+}
+
+.loading-colour-cycle {
+  animation: ColourCycle 8000ms ease infinite;
+  animation-delay: var(--anim-delay);
+}
+
+@keyframes ColourCycle {
+  0% {
+    color: var(--contrast);
+  }
+  10% {
+    color: red;
+  }
+  15% {
+    color: var(--contrast);
+  }
+  20% {
+    color: orange;
+  }
+  25% {
+    color: var(--contrast);
+  }
+  30% {
+    color: yellow;
+  }
+  35% {
+    color: var(--contrast);
+  }
+  40% {
+    color: yellowgreen;
+  }
+  45% {
+    color: var(--contrast);
+  }
+  50% {
+    color: green;
+  }
+  55% {
+    color: var(--contrast);
+  }
+  60% {
+    color: blue;
+  }
+  65% {
+    color: var(--contrast);
+  }
+  70% {
+    color: indigo;
+  }
+  75% {
+    color: var(--contrast);
+  }
+  80% {
+    color: violet;
+  }
+  85% {
+    color: var(--contrast);
+  }
+  90% {
+    color: var(--background);
+  }
+  100% {
+    color: var(--contrast);
+  }
 }

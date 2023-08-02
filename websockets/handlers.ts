@@ -70,6 +70,11 @@ export const handleFindGame = (socket: Socket) => {
   }
 };
 
+export const handleCancelFindGame = (socket: Socket) => {
+  // Remove socket from waiting queue
+  server_data.waiting = server_data.waiting.filter((id) => id !== socket.id);
+};
+
 export const handleCreateGame = (socket: Socket) => {
   RemoveSocketFromAllRooms(socket);
   const newRoomId = crypto.randomBytes(8).toString('hex');
