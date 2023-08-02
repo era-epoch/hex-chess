@@ -32,7 +32,20 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justify-content: end;
+}
+
+.log * {
+  overflow-anchor: none;
+}
+
+.log-top {
+  flex: 1;
+}
+
+.log-anchor {
+  overflow-anchor: auto;
+  min-height: 1px;
+  width: 100%;
 }
 
 .chat-input {

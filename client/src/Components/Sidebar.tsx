@@ -39,6 +39,7 @@ const Sidebar = (props: Props): JSX.Element => {
       <div className="sidebar">
         <div className="log-container">
           <div className="log">
+            <div className="log-top"></div>
             {log.map((item, i) => {
               return (
                 <div className="log-item" key={i}>
@@ -47,6 +48,7 @@ const Sidebar = (props: Props): JSX.Element => {
                 </div>
               );
             })}
+            <div className="log-anchor"></div>
           </div>
           <div className="chat-input">
             <input value={chatMsg} onChange={handleChatInputChange} onKeyDown={msgInputKeydown} />
