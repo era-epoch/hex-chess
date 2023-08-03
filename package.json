@@ -13,15 +13,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jacob-sahl/react-project-starter.git"
+    "url": "git+https://github.com/era-epoch/hex-chess.git"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "era",
+    "url": "https://github.com/era-epoch"
+  },
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jacob-sahl/react-project-starter/issues"
+    "url": "https://github.com/era-epoch/hex-chess/issues"
   },
-  "homepage": "https://github.com/jacob-sahl/react-project-starter#readme",
+  "homepage": "https://github.com/era-epoch/hex-chess#readme",
   "dependencies": {
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
