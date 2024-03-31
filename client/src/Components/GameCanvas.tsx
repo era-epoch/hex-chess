@@ -11,7 +11,7 @@ interface Props {}
 const GameCanvas = (props: Props): JSX.Element => {
   const board = useSelector((state: RootState) => state.game.board);
   const localSide = useSelector((state: RootState) => state.game.localSide);
-  const tilePadding = 5;
+  const tilePadding = 0;
 
   const limitingFactor = window.innerHeight > window.innerWidth ? window.innerWidth : window.innerHeight - 50;
   const tileHexSize = Math.floor((limitingFactor - 11 * tilePadding) / (12 * Math.sqrt(3)));

@@ -161,7 +161,7 @@ input {
   width: 60%;
   aspect-ratio: 1 / 1;
   border-radius: 1000px;
-  border: 3px solid var(--piece-contrast);
+  /* border: 3px solid var(--piece-contrast); */
   background-color: var(--piece-color);
   color: var(--piece-contrast);
   cursor: pointer;
