@@ -83,7 +83,7 @@ app.get('/*', (req: Request, res: Response) => {
 });
 
 // Express server listening...
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 // console.log(process.env);
 
