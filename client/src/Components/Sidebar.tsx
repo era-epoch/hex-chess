@@ -44,7 +44,7 @@ const Sidebar = (props: Props): JSX.Element => {
               return (
                 <div className="log-item" key={i}>
                   <div className="log-source">{item.source}:</div>
-                  <div className="log-content" dangerouslySetInnerHTML={{ __html: item.content }}></div>
+                  <div className="log-content">{item.content}</div>
                 </div>
               );
             })}

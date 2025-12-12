@@ -27,9 +27,6 @@ const Menu = (props: Props) => {
   const onClickFindGame = () => {
     dispatch(setActiveDialogue(Dialogue.FindGame));
   };
-  const onClickSupport = () => {
-    window.open('https://www.patreon.com/eracodes', '_blank');
-  };
   const onClickBugs = () => {
     window.open('https://github.com/era-epoch/hex-chess', '_blank');
   };
@@ -47,9 +44,6 @@ const Menu = (props: Props) => {
       </div>
       <div className="menu-op" onClick={onClickJoinGame}>
         <div>Join Private Game</div>
-      </div>
-      <div className="menu-op small" onClick={onClickSupport}>
-        <div>Support the Developer</div>
       </div>
       <div className="menu-op small" onClick={onClickBugs}>
         <div>Bugs and Feature Requests</div>
